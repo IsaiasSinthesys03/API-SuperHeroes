@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Lex Luthor",
+    "alias": "Lex Luthor",
+    "city": "Metrópolis",
+    "team": "Ninguno"
+  },
+  {
+    "id": 2,
+    "name": "Joker",
+    "alias": "Joker",
+    "city": "Gotham City",
+    "team": "Ninguno"
+  },
+  {
+    "id": 3,
+    "name": "Thanos",
+    "alias": "Thanos",
+    "city": "Titán",
+    "team": "Ninguno"
+  }
+]

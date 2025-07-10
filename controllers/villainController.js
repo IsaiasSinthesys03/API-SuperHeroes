@@ -1,0 +1,182 @@
+import express from "express";
+import { check, validationResult } from 'express-validator';
+import villainService from "../services/villainService.js";
+import Villain from "../models/villainModel.js";
+
+const router = express.Router();
+
+/**
+ * @swagger
+ * /villains:
+ *   get:
+ *     summary: Obtiene todos los villanos
+ *     tags: [Villanos]
+ *     responses:
+ *       200:
+ *         description: Lista de villanos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Villain'
+ *   post:
+ *     summary: Agrega un nuevo villano
+ *     tags: [Villanos]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/VillainInput'
+ *     responses:
+ *       201:
+ *         description: Villano creado
+ *       400:
+ *         description: Datos inválidos
+ *
+ * /villains/city/{city}:
+ *   get:
+ *     summary: Busca villanos por ciudad
+ *     tags: [Villanos]
+ *     parameters:
+ *       - in: path
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Ciudad a buscar
+ *     responses:
+ *       200:
+ *         description: Lista de villanos de la ciudad
+ *       404:
+ *         description: Ciudad No Encontrada, Intentelo de Nuevo
+ *
+ * /villains/{id}:
+ *   put:
+ *     summary: Actualiza un villano
+ *     tags: [Villanos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID del villano
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/VillainInput'
+ *     responses:
+ *       200:
+ *         description: Villano actualizado
+ *       404:
+ *         description: Villano no encontrado
+ *   delete:
+ *     summary: Elimina un villano
+ *     tags: [Villanos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID del villano
+ *     responses:
+ *       200:
+ *         description: Villano eliminado
+ *       404:
+ *         description: Villano no encontrado
+ *
+ * components:
+ *   schemas:
+ *     Villain:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         alias:
+ *           type: string
+ *         city:
+ *           type: string
+ *         team:
+ *           type: string
+ *     VillainInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         alias:
+ *           type: string
+ *         city:
+ *           type: string
+ *         team:
+ *           type: string
+ */
+
+router.get("/villains", async (req, res) => {
+    try {
+        const villains = await villainService.getAllVillains();
+        res.json(villains);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post("/villains",
+    [
+        check('name').not().isEmpty().withMessage('El nombre es requerido'),
+        check('alias').not().isEmpty().withMessage('El alias es requerido')
+    ], 
+    async (req, res) => {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(400).json({ error : errors.array() });
+        }
+
+        try {
+            const { name, alias, city, team } = req.body;
+            const newVillain = new Villain(null, name, alias, city, team);
+            const addedVillain = await villainService.addVillain(newVillain);
+
+            res.status(201).json(addedVillain);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+});
+
+router.put("/villains/:id", async (req, res) => {
+    try {
+        const updatedVillain = await villainService.updateVillain(req.params.id, req.body);
+        res.json(updatedVillain);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+});
+
+router.delete('/villains/:id', async (req, res) => {
+    try {
+        const result = await villainService.deleteVillain(req.params.id);
+        res.json(result);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+});
+
+router.get('/villains/city/:city', async (req, res) => {
+  try {
+    const villains = await villainService.findVillainsByCity(req.params.city);
+    if (villains.length === 0) {
+      return res.status(404).json({ error: 'Ciudad No Encontrada, Intentelo de Nuevo' });
+    }
+    res.json(villains);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;
