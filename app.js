@@ -2,6 +2,8 @@ import express from 'express';
 import heroController from './controllers/heroController.js';
 import villainController from './controllers/villainController.js';
 import battleController from './controllers/battleController.js';
+import equipoController from './controllers/equipoController.js';
+import enfrentamientoController from './controllers/enfrentamientoController.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 
@@ -32,6 +34,8 @@ app.use(express.json());
 app.use('/api', heroController);
 app.use('/api', villainController);
 app.use('/api', battleController);
+app.use('/api', equipoController);
+app.use('/api', enfrentamientoController);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const PORT = 3001;

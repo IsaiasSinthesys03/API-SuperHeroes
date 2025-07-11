@@ -8,7 +8,7 @@ async function getVillains() {
         const data = await fs.readJson(filePath);
         return data.map(villain => new Villain(
             villain.id, villain.name, villain.alias, villain.city, villain.team,
-            villain.golpeBasico1, villain.golpeBasico2, villain.golpeBasico3, villain.danoCrit, villain.probCrit, villain.nombreHabilidad, villain.danoHabilidad, villain.poder
+            villain.golpeBasico1, villain.golpeBasico2, villain.golpeBasico3, villain.danoCrit, villain.probCrit, villain.nombreHabilidad, villain.danoHabilidad, villain.poder, villain.defensa
         ));
     } catch (error) {
         console.error(error);

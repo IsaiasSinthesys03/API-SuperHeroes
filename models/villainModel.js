@@ -1,5 +1,5 @@
 class Villain {
-    constructor(id, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder) {
+    constructor(id, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa) {
         this.id = id;
         this.name = name;
         this.alias = alias;
@@ -13,6 +13,7 @@ class Villain {
         this.nombreHabilidad = nombreHabilidad;
         this.danoHabilidad = danoHabilidad;
         this.poder = poder;
+        this.defensa = defensa;
     }
 }
 

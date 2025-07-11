@@ -7,7 +7,8 @@ async function getAllVillains() {
         ...v,
         golpeBasico1: v.golpeBasico1,
         golpeBasico2: v.golpeBasico2,
-        golpeBasico3: v.golpeBasico3
+        golpeBasico3: v.golpeBasico3,
+        defensa: v.defensa
     }));
 }
 
@@ -56,6 +57,13 @@ async function addVillain(villain) {
         throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
     }
     if (villain.poder > 10) {
+        throw new Error("No se aceptan valores mayores de 10, Intentelo Nuevamente");
+    }
+    // Validar defensa
+    if (villain.defensa < 1) {
+        throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
+    }
+    if (villain.defensa > 10) {
         throw new Error("No se aceptan valores mayores de 10, Intentelo Nuevamente");
     }
     if (villains.some(v => v.alias.toLowerCase() === villain.alias.toLowerCase())) {

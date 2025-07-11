@@ -7,7 +7,8 @@ async function getAllHeroes() {
         ...h,
         golpeBasico1: h.golpeBasico1,
         golpeBasico2: h.golpeBasico2,
-        golpeBasico3: h.golpeBasico3
+        golpeBasico3: h.golpeBasico3,
+        defensa: h.defensa
     }));
 }
 
@@ -56,6 +57,13 @@ async function addHero(hero) {
         throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
     }
     if (hero.poder > 10) {
+        throw new Error("No se aceptan valores mayores de 10, Intentelo Nuevamente");
+    }
+    // Validar defensa
+    if (hero.defensa < 1) {
+        throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
+    }
+    if (hero.defensa > 10) {
         throw new Error("No se aceptan valores mayores de 10, Intentelo Nuevamente");
     }
     // Verificar si el alias ya existe (case-insensitive)

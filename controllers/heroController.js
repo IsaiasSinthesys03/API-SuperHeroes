@@ -172,6 +172,11 @@
  *           minimum: 1
  *           maximum: 10
  *           description: Poder del personaje, debe estar entre 1 y 10.
+ *         defensa:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Defensa del personaje, debe estar entre 1 y 10.
  *     HeroInput:
  *       type: object
  *       properties:
@@ -216,6 +221,11 @@
  *           minimum: 1
  *           maximum: 10
  *           description: Poder del personaje, debe estar entre 1 y 10.
+ *         defensa:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Defensa del personaje, debe estar entre 1 y 10.
  *     Villain:
  *       type: object
  *       properties:
@@ -336,8 +346,8 @@ router.post("/heroes",
         }
 
         try {
-            const { name, alias, city, team } = req.body;
-            const newHero = new Hero(null, name, alias, city, team);
+            const { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa } = req.body;
+            const newHero = new Hero(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa);
             const addedHero = await heroService.addHero(newHero);
 
             res.status(201).json(addedHero);

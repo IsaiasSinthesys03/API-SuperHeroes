@@ -117,6 +117,11 @@ const router = express.Router();
  *           type: integer
  *           minimum: 0
  *           maximum: 15
+ *         defensa:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Defensa del personaje, debe estar entre 1 y 10
  *     VillainInput:
  *       type: object
  *       properties:
@@ -140,6 +145,11 @@ const router = express.Router();
  *           type: integer
  *           minimum: 0
  *           maximum: 15
+ *         defensa:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Defensa del personaje, debe estar entre 1 y 10
  */
 
 router.get("/villains", async (req, res) => {
@@ -163,8 +173,8 @@ router.post("/villains",
         }
 
         try {
-            const { name, alias, city, team } = req.body;
-            const newVillain = new Villain(null, name, alias, city, team);
+            const { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa } = req.body;
+            const newVillain = new Villain(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa);
             const addedVillain = await villainService.addVillain(newVillain);
 
             res.status(201).json(addedVillain);

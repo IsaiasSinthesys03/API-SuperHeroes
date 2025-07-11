@@ -12,7 +12,8 @@
     "probCrit": 50,
     "nombreHabilidad": "Intelecto Supremo",
     "danoHabilidad": 25,
-    "poder": 8
+    "poder": 8,
+    "defensa": 8
   },
   {
     "id": 2,
@@ -27,7 +28,8 @@
     "probCrit": 50,
     "nombreHabilidad": "Caos Imparable",
     "danoHabilidad": 25,
-    "poder": 8
+    "poder": 8,
+    "defensa": 8
   },
   {
     "id": 3,
@@ -42,6 +44,7 @@
     "probCrit": 50,
     "nombreHabilidad": "Guantelete del Infinito",
     "danoHabilidad": 25,
-    "poder": 8
+    "poder": 8,
+    "defensa": 8
   }
 ]
