@@ -110,6 +110,20 @@
  *       404:
  *         description: Héroe o villano no encontrado
  *
+ * /villains:
+ *   get:
+ *     summary: Obtiene todos los villanos
+ *     tags: [Villanos]
+ *     responses:
+ *       200:
+ *         description: Lista de villanos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Villain'
+ *
  * components:
  *   schemas:
  *     Hero:
@@ -125,6 +139,39 @@
  *           type: string
  *         team:
  *           type: string
+ *         golpeBasico1:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico2:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico3:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         danoCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         probCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         nombreHabilidad:
+ *           type: string
+ *           description: Nombre único de la habilidad especial del personaje. No puede repetirse entre héroes o villanos.
+ *         danoHabilidad:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           description: Daño de la habilidad especial, debe estar entre 1 y 50.
+ *         poder:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Poder del personaje, debe estar entre 1 y 10.
  *     HeroInput:
  *       type: object
  *       properties:
@@ -136,6 +183,129 @@
  *           type: string
  *         team:
  *           type: string
+ *         golpeBasico1:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico2:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico3:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         danoCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         probCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         nombreHabilidad:
+ *           type: string
+ *           description: Nombre único de la habilidad especial del personaje. No puede repetirse entre héroes o villanos.
+ *         danoHabilidad:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           description: Daño de la habilidad especial, debe estar entre 1 y 50.
+ *         poder:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Poder del personaje, debe estar entre 1 y 10.
+ *     Villain:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         alias:
+ *           type: string
+ *         city:
+ *           type: string
+ *         team:
+ *           type: string
+ *         golpeBasico1:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico2:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico3:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         danoCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         probCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         nombreHabilidad:
+ *           type: string
+ *           description: Nombre único de la habilidad especial del personaje. No puede repetirse entre héroes o villanos.
+ *         danoHabilidad:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           description: Daño de la habilidad especial, debe estar entre 1 y 50.
+ *         poder:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Poder del personaje, debe estar entre 1 y 10.
+ *     VillainInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         alias:
+ *           type: string
+ *         city:
+ *           type: string
+ *         team:
+ *           type: string
+ *         golpeBasico1:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico2:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico3:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         danoCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         probCrit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         nombreHabilidad:
+ *           type: string
+ *           description: Nombre único de la habilidad especial del personaje. No puede repetirse entre héroes o villanos.
+ *         danoHabilidad:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           description: Daño de la habilidad especial, debe estar entre 1 y 50.
+ *         poder:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: Poder del personaje, debe estar entre 1 y 10.
  */
 
 import express from "express";

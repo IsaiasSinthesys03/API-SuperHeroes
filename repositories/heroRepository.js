@@ -7,7 +7,8 @@ async function getHeroes() {
     try {
         const data = await fs.readJson(filePath);
         return data.map(hero => new Hero(
-            hero.id, hero.name, hero.alias, hero.city, hero.team
+            hero.id, hero.name, hero.alias, hero.city, hero.team,
+            hero.golpeBasico1, hero.golpeBasico2, hero.golpeBasico3, hero.danoCrit, hero.probCrit, hero.nombreHabilidad, hero.danoHabilidad, hero.poder
         ));
     } catch (error) {
         console.error(error);

@@ -105,6 +105,18 @@ const router = express.Router();
  *           type: string
  *         team:
  *           type: string
+ *         golpeBasico1:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico2:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico3:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
  *     VillainInput:
  *       type: object
  *       properties:
@@ -116,6 +128,18 @@ const router = express.Router();
  *           type: string
  *         team:
  *           type: string
+ *         golpeBasico1:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico2:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
+ *         golpeBasico3:
+ *           type: integer
+ *           minimum: 0
+ *           maximum: 15
  */
 
 router.get("/villains", async (req, res) => {

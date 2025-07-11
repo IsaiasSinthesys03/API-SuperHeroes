@@ -1,15 +1,63 @@
 import heroRepository from '../repositories/heroRepository.js';
 
 async function getAllHeroes() {
-    return await heroRepository.getHeroes();
+    const heroes = await heroRepository.getHeroes();
+    // Asegura que los golpes básicos estén presentes en la respuesta
+    return heroes.map(h => ({
+        ...h,
+        golpeBasico1: h.golpeBasico1,
+        golpeBasico2: h.golpeBasico2,
+        golpeBasico3: h.golpeBasico3
+    }));
 }
 
 async function addHero(hero) {
     if (!hero.name || !hero.alias) {
         throw new Error("El héroe debe tener un nombre y un alias.");
     }
-
+    // Validar golpes básicos
+    const golpes = [hero.golpeBasico1, hero.golpeBasico2, hero.golpeBasico3];
+    for (const golpe of golpes) {
+        if (golpe < 0) {
+            throw new Error("No se aceptan numeros Negativos, Intentelo Nuevamente");
+        }
+        if (golpe > 15) {
+            throw new Error("No se aceptan valores mayores de 15, Intentelo Nuevamente");
+        }
+    }
+    // Validar daño crítico
+    if (hero.danoCrit < 0) {
+        throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
+    }
+    if (hero.danoCrit > 100) {
+        throw new Error("No se aceptan valores mayores 100, Intentelo Nuevamente");
+    }
+    // Validar probabilidad crítica
+    if (hero.probCrit < 0) {
+        throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
+    }
+    if (hero.probCrit > 100) {
+        throw new Error("No se aceptan valores mayores 100, Intentelo Nuevamente");
+    }
+    // Validar nombre de habilidad único
     const heroes = await heroRepository.getHeroes();
+    if (heroes.some(h => h.nombreHabilidad && h.nombreHabilidad.toLowerCase() === hero.nombreHabilidad.toLowerCase())) {
+        throw new Error("La habilidad ya es existente, Intentelo de nuevo con otro nombre");
+    }
+    // Validar daño habilidad
+    if (hero.danoHabilidad < 0) {
+        throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
+    }
+    if (hero.danoHabilidad > 50) {
+        throw new Error("No se aceptan valores mayores de 50, Intentelo Nuevamente");
+    }
+    // Validar poder
+    if (hero.poder < 0) {
+        throw new Error("No se aceptan numeros negativos, Intentelo Nuevamente");
+    }
+    if (hero.poder > 10) {
+        throw new Error("No se aceptan valores mayores de 10, Intentelo Nuevamente");
+    }
     // Verificar si el alias ya existe (case-insensitive)
     if (heroes.some(h => h.alias.toLowerCase() === hero.alias.toLowerCase())) {
         throw new Error("El alias ya esta en uso, Intento con otro Nuevo");
