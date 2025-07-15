@@ -46,5 +46,21 @@
     "danoHabilidad": 25,
     "poder": 8,
     "defensa": 8
+  },
+  {
+    "id": 4,
+    "name": "Cid Kagenou",
+    "alias": "SHADOW",
+    "city": "Midgar",
+    "team": "THE EMINENCE IN SHADOW",
+    "golpeBasico1": 100,
+    "golpeBasico2": 100,
+    "golpeBasico3": 100,
+    "danoCrit": 300,
+    "probCrit": 100,
+    "nombreHabilidad": "I AM ATHOMIC",
+    "danoHabilidad": 10000,
+    "poder": 100,
+    "defensa": 20
   }
 ]

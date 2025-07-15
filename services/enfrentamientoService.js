@@ -1,5 +1,6 @@
 import enfrentamientoRepository from '../repositories/enfrentamientoRepository.js';
 import equipoRepository from '../repositories/equipoRepository.js';
+import fs from 'fs-extra';
 
 async function getAllEnfrentamientos() {
     return await enfrentamientoRepository.getEnfrentamientos();
@@ -12,9 +13,12 @@ async function addEnfrentamiento({ ID_Equipo1, ID_Equipo2 }) {
     if (!equipo1 || !equipo2) {
         throw new Error("Error, ID del equipo no existente, Intentelo de nuevo");
     }
+    // Obtener el siguiente ID autocontable
+    const enfrentamientos = await enfrentamientoRepository.getEnfrentamientos();
+    const nextId = enfrentamientos.length > 0 ? Math.max(...enfrentamientos.map(e => e.id)) + 1 : 1;
     // Construir el enfrentamiento con alias y vida 1000
     const newEnfrentamiento = {
-        id: Date.now(),
+        id: nextId,
         ID_Equipo1: equipo1.id,
         AliasPersonaje1_1: equipo1.AliasPersonaje1,
         VidaPersonaje1_1: 1000,
@@ -30,7 +34,6 @@ async function addEnfrentamiento({ ID_Equipo1, ID_Equipo2 }) {
         AliasPersonaje2_3: equipo2.AliasPersonaje3,
         VidaPersonaje2_3: 1000
     };
-    const enfrentamientos = await enfrentamientoRepository.getEnfrentamientos();
     enfrentamientos.push(newEnfrentamiento);
     await enfrentamientoRepository.saveEnfrentamientos(enfrentamientos);
     return newEnfrentamiento;
@@ -42,9 +45,24 @@ async function deleteEnfrentamiento(id) {
     if (index === -1) {
         throw new Error('Enfrentamiento no encontrado');
     }
+    // Obtener el ID_Equipo1 y ID_Equipo2 del enfrentamiento a eliminar
+    const { ID_Equipo1, ID_Equipo2 } = enfrentamientos[index];
+    // Eliminar enfrentamiento
     const filtered = enfrentamientos.filter(e => e.id !== parseInt(id));
     await enfrentamientoRepository.saveEnfrentamientos(filtered);
-    return { message: 'Enfrentamiento eliminado' };
+
+    // Eliminar acciones asociadas en AccionRound1.json y AccionRound2.json
+    const accionRound1Path = './data/AccionRound1.json';
+    const accionRound2Path = './data/AccionRound2.json';
+    let accionesRound1 = await fs.readJson(accionRound1Path);
+    let accionesRound2 = await fs.readJson(accionRound2Path);
+    // Filtrar acciones por ID_Equipo1 e ID_Equipo2 del enfrentamiento eliminado
+    accionesRound1 = accionesRound1.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2);
+    accionesRound2 = accionesRound2.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2);
+    await fs.writeJson(accionRound1Path, accionesRound1);
+    await fs.writeJson(accionRound2Path, accionesRound2);
+
+    return { message: 'Enfrentamiento y acciones asociadas eliminados' };
 }
 
 export default {
