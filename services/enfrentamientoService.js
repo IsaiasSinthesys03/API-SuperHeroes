@@ -13,26 +13,30 @@ async function addEnfrentamiento({ ID_Equipo1, ID_Equipo2 }) {
     if (!equipo1 || !equipo2) {
         throw new Error("Error, ID del equipo no existente, Intentelo de nuevo");
     }
-    // Obtener el siguiente ID autocontable
+    // Obtener enfrentamientos existentes
     const enfrentamientos = await enfrentamientoRepository.getEnfrentamientos();
-    const nextId = enfrentamientos.length > 0 ? Math.max(...enfrentamientos.map(e => e.id)) + 1 : 1;
-    // Construir el enfrentamiento con alias y vida 1000
+    // Si ya existe al menos un enfrentamiento, no permitir registrar otro
+    if (enfrentamientos.length > 0) {
+        throw new Error('No se puede Registrar un nuevo Enfrentamiento por que ya existe uno');
+    }
+    const nextId = 1;
+    // Construir el enfrentamiento con alias y vida 100
     const newEnfrentamiento = {
         id: nextId,
         ID_Equipo1: equipo1.id,
         AliasPersonaje1_1: equipo1.AliasPersonaje1,
-        VidaPersonaje1_1: 1000,
+        VidaPersonaje1_1: 100,
         AliasPersonaje1_2: equipo1.AliasPersonaje2,
-        VidaPersonaje1_2: 1000,
+        VidaPersonaje1_2: 100,
         AliasPersonaje1_3: equipo1.AliasPersonaje3,
-        VidaPersonaje1_3: 1000,
+        VidaPersonaje1_3: 100,
         ID_Equipo2: equipo2.id,
         AliasPersonaje2_1: equipo2.AliasPersonaje1,
-        VidaPersonaje2_1: 1000,
+        VidaPersonaje2_1: 100,
         AliasPersonaje2_2: equipo2.AliasPersonaje2,
-        VidaPersonaje2_2: 1000,
+        VidaPersonaje2_2: 100,
         AliasPersonaje2_3: equipo2.AliasPersonaje3,
-        VidaPersonaje2_3: 1000
+        VidaPersonaje2_3: 100
     };
     enfrentamientos.push(newEnfrentamiento);
     await enfrentamientoRepository.saveEnfrentamientos(enfrentamientos);
@@ -51,18 +55,25 @@ async function deleteEnfrentamiento(id) {
     const filtered = enfrentamientos.filter(e => e.id !== parseInt(id));
     await enfrentamientoRepository.saveEnfrentamientos(filtered);
 
-    // Eliminar acciones asociadas en AccionRound1.json y AccionRound2.json
+    // Eliminar acciones asociadas en AccionRound1.json, AccionRound2.json y AccionRound3.json
     const accionRound1Path = './data/AccionRound1.json';
     const accionRound2Path = './data/AccionRound2.json';
+    const accionRound3Path = './data/AccionRound3.json';
     let accionesRound1 = await fs.readJson(accionRound1Path);
     let accionesRound2 = await fs.readJson(accionRound2Path);
+    let accionesRound3 = await fs.readJson(accionRound3Path);
     // Filtrar acciones por ID_Equipo1 e ID_Equipo2 del enfrentamiento eliminado
     accionesRound1 = accionesRound1.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2);
     accionesRound2 = accionesRound2.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2);
+    accionesRound3 = accionesRound3.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2 && a.ID_Equipo2 !== ID_Equipo1 && a.ID_Equipo2 !== ID_Equipo2);
     await fs.writeJson(accionRound1Path, accionesRound1);
     await fs.writeJson(accionRound2Path, accionesRound2);
+    await fs.writeJson(accionRound3Path, accionesRound3);
 
-    return { message: 'Enfrentamiento y acciones asociadas eliminados' };
+    // Eliminar todo el contenido de Peleas.json
+    const peleasPath = './data/Peleas.json';
+    await fs.writeJson(peleasPath, []);
+    return { message: 'Enfrentamiento, acciones asociadas y resultados eliminados' };
 }
 
 export default {

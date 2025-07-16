@@ -346,8 +346,12 @@ router.post("/heroes",
         }
 
         try {
-            const { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa } = req.body;
-            const newHero = new Hero(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa);
+            let { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida } = req.body;
+            // Si no se especifica vida, poner 100 por defecto
+            if (typeof vida === 'undefined' || vida === null) vida = 100;
+            // Limitar vida máxima a 200
+            if (vida > 200) vida = 200;
+            const newHero = new Hero(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida);
             const addedHero = await heroService.addHero(newHero);
 
             res.status(201).json(addedHero);

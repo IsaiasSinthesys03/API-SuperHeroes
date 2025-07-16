@@ -48,6 +48,7 @@ async function obtenerEnfrentamientoActivo() {
 router.get('/round1jugador2/estados-vida', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
+    // ...existing code...
     res.json({
       TuPersonaje: enf.AliasPersonaje2_1,
       Tuvida: enf.VidaPersonaje2_1,

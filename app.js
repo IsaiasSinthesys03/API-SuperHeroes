@@ -8,6 +8,8 @@ import round1Jugador1Controller from './controllers/round1Jugador1Controller.js'
 import round1Jugador2Controller from './controllers/round1Jugador2Controller.js';
 import round2Jugador1Controller from './controllers/round2Jugador1Controller.js';
 import round2Jugador2Controller from './controllers/round2Jugador2Controller.js';
+import round3Jugador1Controller from './controllers/round3Jugador1Controller.js';
+import round3Jugador2Controller from './controllers/round3Jugador2Controller.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 
@@ -44,6 +46,8 @@ app.use('/api', round1Jugador1Controller);
 app.use('/api', round1Jugador2Controller);
 app.use('/api', round2Jugador1Controller);
 app.use('/api', round2Jugador2Controller);
+app.use('/api', round3Jugador1Controller);
+app.use('/api', round3Jugador2Controller);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const PORT = 3001;

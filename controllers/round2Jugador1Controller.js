@@ -92,6 +92,8 @@ router.get('/round2jugador1/estados-vida', async (req, res) => {
     if (!await ganadorRound1()) {
       return res.status(400).json({ error: 'No se puede usar esta accion hasta establecer un ganador en el Round 1' });
     }
+    // Registro automático de resultado si la vida llega a 0 en round 2
+    // (Lógica de registro eliminada, solo muestra estado de vida)
     res.json({
       TuPersonaje: enf.AliasPersonaje1_2,
       Tuvida: enf.VidaPersonaje1_2,

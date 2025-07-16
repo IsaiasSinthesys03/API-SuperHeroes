@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs-extra';
 import path from 'path';
 
+
 const router = express.Router();
 const accionFile = path.resolve('./data/AccionRound2.json');
 const peleasFile = path.resolve('./data/Peleas.json');
@@ -80,6 +81,18 @@ router.get('/round2jugador2/estados-vida', async (req, res) => {
     // Restricción: solo si hay ganador en round 1
     if (!await ganadorRound1()) {
       return res.status(400).json({ error: 'No se puede usar esta accion hasta establecer un ganador en el Round 1' });
+    }
+    // Registro automático de resultado si la vida llega a 0 en round 2
+    if (enf.VidaPersonaje1_2 === 0 || enf.VidaPersonaje2_2 === 0) {
+      let Round2_J1, Round2_J2;
+      if (enf.VidaPersonaje1_2 === 0) {
+        Round2_J1 = 'You Lose';
+        Round2_J2 = 'You Win';
+      } else {
+        Round2_J1 = 'You Win';
+        Round2_J2 = 'You Lose';
+      }
+
     }
     res.json({
       TuPersonaje: enf.AliasPersonaje2_2,

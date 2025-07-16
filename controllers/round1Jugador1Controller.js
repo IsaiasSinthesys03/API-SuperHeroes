@@ -48,6 +48,22 @@ async function obtenerEnfrentamientoActivo() {
 router.get('/round1/estados-vida', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
+    // Registro automático de resultado si la vida llega a 0
+    if (enf.VidaPersonaje1_1 === 0 || enf.VidaPersonaje2_1 === 0) {
+      let ganadorFinal, perdedorFinal, round1_j1, round1_j2;
+      if (enf.VidaPersonaje1_1 === 0) {
+        ganadorFinal = 'Jugador 2';
+        perdedorFinal = 'Jugador 1';
+        round1_j1 = 'You Lose';
+        round1_j2 = 'You Win';
+      } else {
+        ganadorFinal = 'Jugador 1';
+        perdedorFinal = 'Jugador 2';
+        round1_j1 = 'You Win';
+        round1_j2 = 'You Lose';
+      }
+    }
+    // ...existing code...
     res.json({
       TuPersonaje: enf.AliasPersonaje1_1,
       Tuvida: enf.VidaPersonaje1_1,

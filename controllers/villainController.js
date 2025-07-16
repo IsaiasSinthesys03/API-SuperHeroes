@@ -173,8 +173,12 @@ router.post("/villains",
         }
 
         try {
-            const { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa } = req.body;
-            const newVillain = new Villain(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa);
+            let { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida } = req.body;
+            // Si no se especifica vida, poner 100 por defecto
+            if (typeof vida === 'undefined' || vida === null) vida = 100;
+            // Limitar vida máxima a 200
+            if (vida > 200) vida = 200;
+            const newVillain = new Villain(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida);
             const addedVillain = await villainService.addVillain(newVillain);
 
             res.status(201).json(addedVillain);

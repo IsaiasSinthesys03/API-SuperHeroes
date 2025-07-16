@@ -1,5 +1,5 @@
 class Hero {
-    constructor(id, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa) {
+    constructor(id, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida = 100) {
         this.id = id;
         this.name = name;
         this.alias = alias;
@@ -14,6 +14,7 @@ class Hero {
         this.danoHabilidad = danoHabilidad;
         this.poder = poder;
         this.defensa = defensa;
+        this.vida = vida;
     }
 }
 
