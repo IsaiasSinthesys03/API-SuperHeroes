@@ -43,15 +43,32 @@ router.get('/round3jugador1/estados-vida', async (req, res) => {
     const enf = await obtenerEnfrentamientoActivo();
     // Registro automático de resultado si la vida llega a 0 en round 3
     if (enf.VidaPersonaje1_3 === 0 || enf.VidaPersonaje2_3 === 0) {
-      let round3_j1, round3_j2;
+      let round3_j1, round3_j2, ganadorFinal, perdedorFinal;
       if (enf.VidaPersonaje1_3 === 0) {
         round3_j1 = 'You Lose';
         round3_j2 = 'You Win';
+        ganadorFinal = 'Jugador 2';
+        perdedorFinal = 'Jugador 1';
       } else {
         round3_j1 = 'You Win';
         round3_j2 = 'You Lose';
+        ganadorFinal = 'Jugador 1';
+        perdedorFinal = 'Jugador 2';
       }
-
+      const peleasService = await import('../services/peleasService.js');
+      await peleasService.default.registrarRound({
+        id: enf.id,
+        aliasPersonaje1_1: enf.AliasPersonaje1_1,
+        round1_j1: null,
+        aliasPersonaje2_1: enf.AliasPersonaje2_1,
+        round1_j2: null,
+        round2_j1: null,
+        round2_j2: null,
+        round3_j1,
+        round3_j2,
+        ganadorFinal,
+        perdedorFinal
+      });
     }
     res.json({
       TuPersonaje: enf.AliasPersonaje1_3,
@@ -218,6 +235,16 @@ router.post('/round3jugador1/atacar', async (req, res) => {
   await fs.writeJson(enfrentamientosFile, enfrentamientos);
   // Mensaje de fin de round
   if (enf.VidaPersonaje2_3 === 0) {
+    // Registrar resultado en Peleas.json
+    try {
+      const peleasService = await import('../services/peleasService.js');
+      await peleasService.default.registrarRound({
+        id: enf.id,
+        round3: "Jugador 1"
+      });
+    } catch (err) {
+      // Error de registro, pero no bloquea respuesta
+    }
     return res.status(201).json({ mensaje: 'YOU WIN', detalle: 'El Round 3 ha concluido.', accion: nuevaAccion });
   }
   res.status(201).json({ mensaje, accion: nuevaAccion });

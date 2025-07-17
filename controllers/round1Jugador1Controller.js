@@ -62,6 +62,11 @@ router.get('/round1/estados-vida', async (req, res) => {
         round1_j1 = 'You Win';
         round1_j2 = 'You Lose';
       }
+      const peleasService = await import('../services/peleasService.js');
+      await peleasService.default.registrarRound({
+        id: enf.id,
+        round1: (round1_j1 === 'You Win') ? 'Jugador 1' : 'Jugador 2'
+      });
     }
     // ...existing code...
     res.json({
@@ -223,8 +228,13 @@ router.post('/round1/atacar', async (req, res) => {
     const enfrentamientos = await fs.readJson(enfrentamientosFile);
     enfrentamientos[0].VidaPersonaje2_1 = enf.VidaPersonaje2_1;
     await fs.writeJson(enfrentamientosFile, enfrentamientos);
-    // RESTRICCIÓN: Si la vida del enemigo llegó a 0, mostrar mensajes de fin de round SOLO para el ganador
+    // RESTRICCIÓN: Si la vida del enemigo llegó a 0, registrar resultado y mostrar mensajes de fin de round SOLO para el ganador
     if (enf.VidaPersonaje2_1 === 0) {
+      const peleasService = await import('../services/peleasService.js');
+      await peleasService.default.registrarRound({
+        id: enf.id,
+        round1: 'Jugador 1'
+      });
       return res.status(201).json({ mensaje: 'YOU WIN', detalle: 'El Round 1 a concluido, Para seguir peleando valla al Round 2', accion: nuevaAccion });
     }
     res.status(201).json({ mensaje, accion: nuevaAccion });

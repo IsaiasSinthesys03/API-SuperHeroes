@@ -48,7 +48,26 @@ async function obtenerEnfrentamientoActivo() {
 router.get('/round1jugador2/estados-vida', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
-    // ...existing code...
+    // Registro automático de resultado si la vida llega a 0
+    if (enf.VidaPersonaje1_1 === 0 || enf.VidaPersonaje2_1 === 0) {
+      let ganadorFinal, perdedorFinal, round1_j1, round1_j2;
+      if (enf.VidaPersonaje1_1 === 0) {
+        ganadorFinal = 'Jugador 2';
+        perdedorFinal = 'Jugador 1';
+        round1_j1 = 'You Lose';
+        round1_j2 = 'You Win';
+      } else {
+        ganadorFinal = 'Jugador 1';
+        perdedorFinal = 'Jugador 2';
+        round1_j1 = 'You Win';
+        round1_j2 = 'You Lose';
+      }
+      const peleasService = await import('../services/peleasService.js');
+      await peleasService.default.registrarRound({
+        id: enf.id,
+        round1: (round1_j2 === 'You Win') ? 'Jugador 2' : 'Jugador 1'
+      });
+    }
     res.json({
       TuPersonaje: enf.AliasPersonaje2_1,
       Tuvida: enf.VidaPersonaje2_1,
@@ -207,8 +226,13 @@ router.post('/round1jugador2/atacar', async (req, res) => {
     const enfrentamientos = await fs.readJson(enfrentamientosFile);
     enfrentamientos[0].VidaPersonaje1_1 = enf.VidaPersonaje1_1;
     await fs.writeJson(enfrentamientosFile, enfrentamientos);
-    // RESTRICCIÓN: Si la vida del enemigo llegó a 0, mostrar mensajes de fin de round SOLO para el ganador
+    // RESTRICCIÓN: Si la vida del enemigo llegó a 0, registrar resultado y mostrar mensajes de fin de round SOLO para el ganador
     if (enf.VidaPersonaje1_1 === 0) {
+      const peleasService = await import('../services/peleasService.js');
+      await peleasService.default.registrarRound({
+        id: enf.id,
+        round1: 'Jugador 2'
+      });
       return res.status(201).json({ mensaje: 'YOU WIN', detalle: 'El Round 1 a concluido, Para seguir peleando valla al Round 2', accion: nuevaAccion });
     }
     res.status(201).json({ mensaje, accion: nuevaAccion });
