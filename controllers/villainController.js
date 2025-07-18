@@ -155,7 +155,12 @@ const router = express.Router();
 router.get("/villains", async (req, res) => {
     try {
         const villains = await villainService.getAllVillains();
-        res.json(villains);
+        // Eliminar manualmente _id y __v de cada villano
+        const cleanVillains = villains.map(v => {
+            const { _id, __v, ...rest } = v;
+            return rest;
+        });
+        res.json(cleanVillains);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

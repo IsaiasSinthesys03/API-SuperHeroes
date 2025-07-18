@@ -70,13 +70,16 @@ async function addHero(hero) {
     if (heroes.some(h => h.alias.toLowerCase() === hero.alias.toLowerCase())) {
         throw new Error("El alias ya esta en uso, Intento con otro Nuevo");
     }
-    const newId = heroes.length > 0 ? Math.max(...heroes.map(h => h.id)) + 1 : 1;
-    const newHero = { ...hero, id: newId };
-
-    heroes.push(newHero);
-    await heroRepository.saveHeroes(heroes);
-
-    return newHero;
+    // Eliminar solo _id si viene en el body para evitar duplicados
+    if ('_id' in hero) delete hero._id;
+    // Usar la declaración existente de heroes (ya está arriba en la función)
+    let newId = 1;
+    if (heroes.length > 0) {
+        newId = Math.max(...heroes.map(h => h.id)) + 1;
+    }
+    hero.id = newId;
+    const savedHero = await heroRepository.saveHero(hero);
+    return savedHero;
 }
 
 async function updateHero(id, updatedHero) {
@@ -87,26 +90,24 @@ async function updateHero(id, updatedHero) {
         throw new Error('Héroe no encontrado');
     }
 
-    // Eliminar el campo id si viene en el body para evitar que se modifique
-    if ('id' in updatedHero) {
-        delete updatedHero.id;
-    }
-    heroes[index] = { ...heroes[index], ...updatedHero };
 
-    await heroRepository.saveHeroes(heroes);
-    return heroes[index];
+    // No permitir modificar el id ni el _id
+    if ('id' in updatedHero) delete updatedHero.id;
+    if ('_id' in updatedHero) delete updatedHero._id;
+    const result = await heroRepository.updateHeroById(id, updatedHero);
+    if (result.matchedCount === 0) {
+        throw new Error('Héroe no encontrado');
+    }
+    // Retornar el héroe actualizado
+    const updatedHeroes = await heroRepository.getHeroes();
+    return updatedHeroes.find(hero => hero.id === parseInt(id));
 }
 
 async function deleteHero(id) {
-    const heroes = await heroRepository.getHeroes();
-    const index = heroes.findIndex(hero => hero.id === parseInt(id));
-
-    if (index === -1) {
+    const result = await heroRepository.deleteHeroById(id);
+    if (result.deletedCount === 0) {
         throw new Error('Héroe no encontrado');
     }
-
-    const filteredHeroes = heroes.filter(hero => hero.id !== parseInt(id));
-    await heroRepository.saveHeroes(filteredHeroes);
     return { message: 'Héroe eliminado' };
 }
 
@@ -134,7 +135,9 @@ async function faceVillain(heroId, villainId) {
     const newId = battles.length > 0 ? Math.max(...battles.map(b => b.id)) + 1 : 1;
     const newBattle = { id: newId, heroAlias: hero.alias, villainAlias: villain.alias };
     battles.push(newBattle);
-    await battleRepository.saveBattles(battles);
+    for (const battle of battles) {
+        await battleRepository.saveBattle(battle);
+    }
     return `${hero.alias} enfrenta a ${villain.alias}`;
 }
 

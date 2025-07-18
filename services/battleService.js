@@ -17,7 +17,9 @@ async function addBattle({ heroAlias, villainAlias }) {
     const newId = battles.length > 0 ? Math.max(...battles.map(b => b.id)) + 1 : 1;
     const newBattle = { id: newId, heroAlias: hero.alias, villainAlias: villain.alias };
     battles.push(newBattle);
-    await battleRepository.saveBattles(battles);
+    for (const battle of battles) {
+        await battleRepository.saveBattle(battle);
+    }
     return newBattle;
 }
 
@@ -32,7 +34,9 @@ async function updateBattle(id, { heroAlias, villainAlias }) {
     if (!hero) throw new Error('Heroe no encontrado');
     if (!villain) throw new Error('Villano no encontrado');
     battles[index] = { ...battles[index], heroAlias: hero.alias, villainAlias: villain.alias };
-    await battleRepository.saveBattles(battles);
+    for (const battle of battles) {
+        await battleRepository.saveBattle(battle);
+    }
     return battles[index];
 }
 
@@ -41,7 +45,9 @@ async function deleteBattle(id) {
     const index = battles.findIndex(b => b.id === parseInt(id));
     if (index === -1) throw new Error('Batalla no encontrada');
     const filteredBattles = battles.filter(b => b.id !== parseInt(id));
-    await battleRepository.saveBattles(filteredBattles);
+    for (const battle of filteredBattles) {
+        await battleRepository.saveBattle(battle);
+    }
     return { message: 'Batalla eliminada' };
 }
 

@@ -1,29 +1,26 @@
-import fs from 'fs-extra';
-import Battle from '../models/battleModel.js';
 
-const filePath = './data/battles.json';
+import Battle from '../models/battleSchema.js';
 
 async function getBattles() {
     try {
-        const data = await fs.readJson(filePath);
-        return data.map(battle => new Battle(
-            battle.id, battle.heroAlias, battle.villainAlias
-        ));
+        return await Battle.find().lean();
     } catch (error) {
         console.error(error);
         return [];
     }
 }
 
-async function saveBattles(battles) {
+async function saveBattle(battleData) {
     try {
-        await fs.writeJson(filePath, battles);
+        const battle = new Battle(battleData);
+        return await battle.save();
     } catch (error) {
         console.error(error);
+        throw error;
     }
 }
 
 export default {
     getBattles,
-    saveBattles
+    saveBattle
 };

@@ -1,30 +1,48 @@
-import fs from 'fs-extra';
-import Hero from '../models/heroModel.js';
+async function deleteHeroById(id) {
+    try {
+        return await Hero.deleteOne({ id: parseInt(id) });
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
-const filePath = './data/superheroes.json'; // Verifica la ruta según tu estructura
+
+import Hero from '../models/heroSchema.js';
 
 async function getHeroes() {
     try {
-        const data = await fs.readJson(filePath);
-        return data.map(hero => new Hero(
-            hero.id, hero.name, hero.alias, hero.city, hero.team,
-            hero.golpeBasico1, hero.golpeBasico2, hero.golpeBasico3, hero.danoCrit, hero.probCrit, hero.nombreHabilidad, hero.danoHabilidad, hero.poder, hero.defensa
-        ));
+        return await Hero.find().lean();
     } catch (error) {
         console.error(error);
         return [];
     }
 }
 
-async function saveHeroes(heroes) {
+async function updateHeroById(id, updateData) {
     try {
-        await fs.writeJson(filePath, heroes);
+        // No permitir modificar _id
+        if ('_id' in updateData) delete updateData._id;
+        return await Hero.updateOne({ id: parseInt(id) }, { $set: updateData });
     } catch (error) {
         console.error(error);
+        throw error;
+    }
+}
+
+async function saveHero(heroData) {
+    try {
+        const hero = new Hero(heroData);
+        return await hero.save();
+    } catch (error) {
+        console.error(error);
+        throw error;
     }
 }
 
 export default {
     getHeroes,
-    saveHeroes
+    saveHero,
+    deleteHeroById,
+    updateHeroById
 };

@@ -39,7 +39,9 @@ async function addEnfrentamiento({ ID_Equipo1, ID_Equipo2 }) {
         VidaPersonaje2_3: 100
     };
     enfrentamientos.push(newEnfrentamiento);
-    await enfrentamientoRepository.saveEnfrentamientos(enfrentamientos);
+    for (const enfrentamiento of enfrentamientos) {
+        await enfrentamientoRepository.saveEnfrentamiento(enfrentamiento);
+    }
     return newEnfrentamiento;
 }
 
@@ -53,7 +55,9 @@ async function deleteEnfrentamiento(id) {
     const { ID_Equipo1, ID_Equipo2 } = enfrentamientos[index];
     // Eliminar enfrentamiento
     const filtered = enfrentamientos.filter(e => e.id !== parseInt(id));
-    await enfrentamientoRepository.saveEnfrentamientos(filtered);
+    for (const enfrentamiento of filtered) {
+        await enfrentamientoRepository.saveEnfrentamiento(enfrentamiento);
+    }
 
     // Eliminar acciones asociadas en AccionRound1.json, AccionRound2.json y AccionRound3.json
     const accionRound1Path = './data/AccionRound1.json';

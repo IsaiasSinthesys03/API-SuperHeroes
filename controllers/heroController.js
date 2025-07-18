@@ -325,10 +325,16 @@ import Hero from "../models/heroModel.js";
 
 const router = express.Router();
 
+
 router.get("/heroes", async (req, res) => {
     try {
         const heroes = await heroService.getAllHeroes();
-        res.json(heroes);
+        // Eliminar manualmente _id y __v de cada héroe
+        const cleanHeroes = heroes.map(h => {
+            const { _id, __v, ...rest } = h;
+            return rest;
+        });
+        res.json(cleanHeroes);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -346,14 +352,13 @@ router.post("/heroes",
         }
 
         try {
+            // Limpiar el body para evitar campos no deseados
             let { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida } = req.body;
-            // Si no se especifica vida, poner 100 por defecto
             if (typeof vida === 'undefined' || vida === null) vida = 100;
-            // Limitar vida máxima a 200
             if (vida > 200) vida = 200;
-            const newHero = new Hero(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida);
-            const addedHero = await heroService.addHero(newHero);
-
+            // No crear instancia de la clase Hero, solo pasar objeto plano
+            const heroData = { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida };
+            const addedHero = await heroService.addHero(heroData);
             res.status(201).json(addedHero);
         } catch (error) {
             res.status(500).json({ error: error.message });

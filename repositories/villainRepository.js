@@ -1,30 +1,46 @@
-import fs from 'fs-extra';
-import Villain from '../models/villainModel.js';
-
-const filePath = './data/villains.json';
+async function updateVillainById(id, updateData) {
+    try {
+        if ('_id' in updateData) delete updateData._id;
+        if ('id' in updateData) delete updateData.id;
+        return await Villain.updateOne({ id: parseInt(id) }, { $set: updateData });
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+import Villain from '../models/villainSchema.js';
 
 async function getVillains() {
     try {
-        const data = await fs.readJson(filePath);
-        return data.map(villain => new Villain(
-            villain.id, villain.name, villain.alias, villain.city, villain.team,
-            villain.golpeBasico1, villain.golpeBasico2, villain.golpeBasico3, villain.danoCrit, villain.probCrit, villain.nombreHabilidad, villain.danoHabilidad, villain.poder, villain.defensa
-        ));
+        return await Villain.find();
     } catch (error) {
         console.error(error);
         return [];
     }
 }
 
-async function saveVillains(villains) {
+async function saveVillain(villainData) {
     try {
-        await fs.writeJson(filePath, villains);
+        const villain = new Villain(villainData);
+        return await villain.save();
     } catch (error) {
         console.error(error);
+        throw error;
+    }
+}
+
+async function deleteVillainById(id) {
+    try {
+        return await Villain.deleteOne({ id: parseInt(id) });
+    } catch (error) {
+        console.error(error);
+        throw error;
     }
 }
 
 export default {
     getVillains,
-    saveVillains
+    saveVillain,
+    deleteVillainById,
+    updateVillainById
 };

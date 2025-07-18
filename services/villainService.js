@@ -2,14 +2,17 @@ import villainRepository from '../repositories/villainRepository.js';
 
 async function getAllVillains() {
     const villains = await villainRepository.getVillains();
-    // Asegura que los golpes básicos estén presentes en la respuesta
-    return villains.map(v => ({
-        ...v,
-        golpeBasico1: v.golpeBasico1,
-        golpeBasico2: v.golpeBasico2,
-        golpeBasico3: v.golpeBasico3,
-        defensa: v.defensa
-    }));
+    // Convertir cada documento a objeto plano y asegurar que los golpes básicos estén presentes
+    return villains.map(v => {
+        const obj = (typeof v.toObject === 'function') ? v.toObject() : v;
+        return {
+            ...obj,
+            golpeBasico1: obj.golpeBasico1,
+            golpeBasico2: obj.golpeBasico2,
+            golpeBasico3: obj.golpeBasico3,
+            defensa: obj.defensa
+        };
+    });
 }
 
 async function addVillain(villain) {
@@ -69,42 +72,30 @@ async function addVillain(villain) {
     if (villains.some(v => v.alias.toLowerCase() === villain.alias.toLowerCase())) {
         throw new Error("El alias ya esta en uso, Intento con otro Nuevo");
     }
+    // Eliminar _id si viene en el body para evitar duplicados
+    if ('_id' in villain) delete villain._id;
     const newId = villains.length > 0 ? Math.max(...villains.map(v => v.id)) + 1 : 1;
     const newVillain = { ...villain, id: newId };
-
-    villains.push(newVillain);
-    await villainRepository.saveVillains(villains);
-
-    return newVillain;
+    const savedVillain = await villainRepository.saveVillain(newVillain);
+    return savedVillain;
 }
 
 async function updateVillain(id, updatedVillain) {
-    const villains = await villainRepository.getVillains();
-    const index = villains.findIndex(villain => villain.id === parseInt(id));
-
-    if (index === -1) {
+    if ('id' in updatedVillain) delete updatedVillain.id;
+    if ('_id' in updatedVillain) delete updatedVillain._id;
+    const result = await villainRepository.updateVillainById(id, updatedVillain);
+    if (result.matchedCount === 0) {
         throw new Error('Villano no encontrado');
     }
-
-    if ('id' in updatedVillain) {
-        delete updatedVillain.id;
-    }
-    villains[index] = { ...villains[index], ...updatedVillain };
-
-    await villainRepository.saveVillains(villains);
-    return villains[index];
+    const villains = await villainRepository.getVillains();
+    return villains.find(villain => villain.id === parseInt(id));
 }
 
 async function deleteVillain(id) {
-    const villains = await villainRepository.getVillains();
-    const index = villains.findIndex(villain => villain.id === parseInt(id));
-
-    if (index === -1) {
+    const result = await villainRepository.deleteVillainById(id);
+    if (result.deletedCount === 0) {
         throw new Error('Villano no encontrado');
     }
-
-    const filteredVillains = villains.filter(villain => villain.id !== parseInt(id));
-    await villainRepository.saveVillains(filteredVillains);
     return { message: 'Villano eliminado' };
 }
 

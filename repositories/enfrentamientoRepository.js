@@ -1,43 +1,26 @@
-import fs from 'fs-extra';
-import Enfrentamiento from '../models/enfrentamientoModel.js';
 
-const filePath = './data/enfrentamientos.json';
+import Enfrentamiento from '../models/enfrentamientoSchema.js';
 
 async function getEnfrentamientos() {
     try {
-        const data = await fs.readJson(filePath);
-        return data.map(e => new Enfrentamiento(
-            e.id,
-            e.ID_Equipo1,
-            e.AliasPersonaje1_1,
-            e.VidaPersonaje1_1,
-            e.AliasPersonaje1_2,
-            e.VidaPersonaje1_2,
-            e.AliasPersonaje1_3,
-            e.VidaPersonaje1_3,
-            e.ID_Equipo2,
-            e.AliasPersonaje2_1,
-            e.VidaPersonaje2_1,
-            e.AliasPersonaje2_2,
-            e.VidaPersonaje2_2,
-            e.AliasPersonaje2_3,
-            e.VidaPersonaje2_3
-        ));
+        return await Enfrentamiento.find().lean();
     } catch (error) {
         console.error(error);
         return [];
     }
 }
 
-async function saveEnfrentamientos(enfrentamientos) {
+async function saveEnfrentamiento(enfrentamientoData) {
     try {
-        await fs.writeJson(filePath, enfrentamientos);
+        const enfrentamiento = new Enfrentamiento(enfrentamientoData);
+        return await enfrentamiento.save();
     } catch (error) {
         console.error(error);
+        throw error;
     }
 }
 
 export default {
     getEnfrentamientos,
-    saveEnfrentamientos
+    saveEnfrentamiento
 };

@@ -1,3 +1,4 @@
+import './db.js';
 import express from 'express';
 import heroController from './controllers/heroController.js';
 import villainController from './controllers/villainController.js';

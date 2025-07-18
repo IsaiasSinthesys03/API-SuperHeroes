@@ -1,35 +1,35 @@
-import fs from 'fs-extra';
-import Equipo from '../models/equipoModel.js';
 
-const filePath = './data/equipos.json';
+import Equipo from '../models/equipoSchema.js';
 
 async function getEquipos() {
     try {
-        const data = await fs.readJson(filePath);
-        return data.map(equipo => new Equipo(
-            equipo.id,
-            equipo.Heroe_O_Villano1,
-            equipo.AliasPersonaje1,
-            equipo.Heroe_O_Villano2,
-            equipo.AliasPersonaje2,
-            equipo.Heroe_O_Villano3,
-            equipo.AliasPersonaje3
-        ));
+        return await Equipo.find().lean();
     } catch (error) {
         console.error(error);
         return [];
     }
 }
 
-async function saveEquipos(equipos) {
+async function saveEquipo(equipoData) {
     try {
-        await fs.writeJson(filePath, equipos);
+        const equipo = new Equipo(equipoData);
+        return await equipo.save();
     } catch (error) {
         console.error(error);
+        throw error;
+    }
+}
+async function deleteEquipo(id) {
+    try {
+        return await Equipo.deleteOne({ id: parseInt(id) });
+    } catch (error) {
+        console.error(error);
+        throw error;
     }
 }
 
 export default {
     getEquipos,
-    saveEquipos
+    saveEquipo,
+    deleteEquipo
 };

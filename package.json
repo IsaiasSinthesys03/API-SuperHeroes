@@ -20,9 +20,12 @@
   },
   "homepage": "https://github.com/IsaiasSinthesys03/API-SuperHeroes#readme",
   "dependencies": {
+    "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
     "fs-extra": "^11.3.0",
+    "mongoose": "^8.16.4",
+    "mongoose-sequence": "^6.0.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }

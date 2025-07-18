@@ -94,7 +94,17 @@ const router = express.Router();
 router.get("/equipos", async (req, res) => {
     try {
         const equipos = await equipoService.getAllEquipos();
-        res.json(equipos);
+        // Limpiar la respuesta para mostrar solo los campos requeridos
+        const cleanEquipos = equipos.map(e => ({
+            id: e.id,
+            Heroe_O_Villano1: e.Heroe_O_Villano1,
+            AliasPersonaje1: e.AliasPersonaje1,
+            Heroe_O_Villano2: e.Heroe_O_Villano2,
+            AliasPersonaje2: e.AliasPersonaje2,
+            Heroe_O_Villano3: e.Heroe_O_Villano3,
+            AliasPersonaje3: e.AliasPersonaje3
+        }));
+        res.json(cleanEquipos);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -116,9 +126,13 @@ router.delete("/equipos/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const result = await equipoService.deleteEquipo(id);
-        res.json(result);
+        if (result && result.deletedCount > 0) {
+            res.json({ mensaje: "Se ha borrado el Equipo con exito" });
+        } else {
+            res.status(404).json({ error: "Error, El Equipo no existe" });
+        }
     } catch (error) {
-        res.status(404).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 
