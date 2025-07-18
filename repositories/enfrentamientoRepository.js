@@ -3,7 +3,7 @@ import Enfrentamiento from '../models/enfrentamientoSchema.js';
 
 async function getEnfrentamientos() {
     try {
-        return await Enfrentamiento.find().lean();
+        return await Enfrentamiento.find();
     } catch (error) {
         console.error(error);
         return [];
@@ -23,4 +23,13 @@ async function saveEnfrentamiento(enfrentamientoData) {
 export default {
     getEnfrentamientos,
     saveEnfrentamiento
+    ,
+    async deleteEnfrentamientoById(id) {
+        try {
+            return await Enfrentamiento.deleteOne({ id: parseInt(id) });
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
 };

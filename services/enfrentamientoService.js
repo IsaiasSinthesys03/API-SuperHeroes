@@ -15,11 +15,11 @@ async function addEnfrentamiento({ ID_Equipo1, ID_Equipo2 }) {
     }
     // Obtener enfrentamientos existentes
     const enfrentamientos = await enfrentamientoRepository.getEnfrentamientos();
-    // Si ya existe al menos un enfrentamiento, no permitir registrar otro
+    // Calcular el id autoincremental
+    let nextId = 1;
     if (enfrentamientos.length > 0) {
-        throw new Error('No se puede Registrar un nuevo Enfrentamiento por que ya existe uno');
+        nextId = Math.max(...enfrentamientos.map(e => e.id || 0)) + 1;
     }
-    const nextId = 1;
     // Construir el enfrentamiento con alias y vida 100
     const newEnfrentamiento = {
         id: nextId,
@@ -38,14 +38,12 @@ async function addEnfrentamiento({ ID_Equipo1, ID_Equipo2 }) {
         AliasPersonaje2_3: equipo2.AliasPersonaje3,
         VidaPersonaje2_3: 100
     };
-    enfrentamientos.push(newEnfrentamiento);
-    for (const enfrentamiento of enfrentamientos) {
-        await enfrentamientoRepository.saveEnfrentamiento(enfrentamiento);
-    }
+    await enfrentamientoRepository.saveEnfrentamiento(newEnfrentamiento);
     return newEnfrentamiento;
 }
 
 async function deleteEnfrentamiento(id) {
+    // Buscar el enfrentamiento en la base de datos
     const enfrentamientos = await enfrentamientoRepository.getEnfrentamientos();
     const index = enfrentamientos.findIndex(e => e.id === parseInt(id));
     if (index === -1) {
@@ -53,12 +51,11 @@ async function deleteEnfrentamiento(id) {
     }
     // Obtener el ID_Equipo1 y ID_Equipo2 del enfrentamiento a eliminar
     const { ID_Equipo1, ID_Equipo2 } = enfrentamientos[index];
-    // Eliminar enfrentamiento
-    const filtered = enfrentamientos.filter(e => e.id !== parseInt(id));
-    for (const enfrentamiento of filtered) {
-        await enfrentamientoRepository.saveEnfrentamiento(enfrentamiento);
+    // Eliminar enfrentamiento en MongoDB
+    const deleteResult = await enfrentamientoRepository.deleteEnfrentamientoById(id);
+    if (deleteResult.deletedCount === 0) {
+        throw new Error('No se pudo eliminar el enfrentamiento de la base de datos');
     }
-
     // Eliminar acciones asociadas en AccionRound1.json, AccionRound2.json y AccionRound3.json
     const accionRound1Path = './data/AccionRound1.json';
     const accionRound2Path = './data/AccionRound2.json';

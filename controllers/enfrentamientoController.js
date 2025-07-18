@@ -95,19 +95,13 @@ const router = express.Router();
 router.get("/enfrentamientos", async (req, res) => {
     try {
         const enfrentamientos = await enfrentamientoService.getAllEnfrentamientos();
-        // Excluir los campos de vida de la respuesta
-        const enfrentamientosSinVida = enfrentamientos.map(e => ({
-            id: e.id,
-            ID_Equipo1: e.ID_Equipo1,
-            AliasPersonaje1_1: e.AliasPersonaje1_1,
-            AliasPersonaje1_2: e.AliasPersonaje1_2,
-            AliasPersonaje1_3: e.AliasPersonaje1_3,
-            ID_Equipo2: e.ID_Equipo2,
-            AliasPersonaje2_1: e.AliasPersonaje2_1,
-            AliasPersonaje2_2: e.AliasPersonaje2_2,
-            AliasPersonaje2_3: e.AliasPersonaje2_3
-        }));
-        res.json(enfrentamientosSinVida);
+        // Convertir a objeto plano usando toJSON para aplicar el transform del schema
+        const cleanEnfrentamientos = enfrentamientos.map(e => {
+            const obj = e.toJSON ? e.toJSON() : e;
+            const { _id, __v, ...rest } = obj;
+            return rest;
+        });
+        res.json(cleanEnfrentamientos);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
