@@ -66,6 +66,11 @@ async function deleteEnfrentamiento(id) {
     await accionRound2Repository.deleteByEquipoId(ID_Equipo1);
     await accionRound2Repository.deleteByEquipoId(ID_Equipo2);
 
+    // Eliminar acciones asociadas en la colección AccionRound3 de MongoDB
+    const accionRound3Repository = (await import('../repositories/accionRound3Repository.js')).default;
+    await accionRound3Repository.deleteByEquipoId(ID_Equipo1);
+    await accionRound3Repository.deleteByEquipoId(ID_Equipo2);
+
     // Eliminar todo el contenido de Peleas.json
     const peleasPath = './data/Peleas.json';
     await fs.writeJson(peleasPath, []);

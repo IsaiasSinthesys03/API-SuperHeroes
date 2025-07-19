@@ -76,5 +76,28 @@ export default {
             console.error(error);
             throw error;
         }
+
+    },
+    async updateVidaPersonaje1_3(id, nuevaVida) {
+        try {
+            return await Enfrentamiento.updateOne(
+                { id: parseInt(id) },
+                { $set: { VidaPersonaje1_3: nuevaVida } }
+            );
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    },
+    async updateVidaPersonaje2_3(id, nuevaVida) {
+        try {
+            return await Enfrentamiento.updateOne(
+                { id: parseInt(id) },
+                { $set: { VidaPersonaje2_3: nuevaVida } }
+            );
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     }
 };
