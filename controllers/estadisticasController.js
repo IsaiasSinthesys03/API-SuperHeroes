@@ -1,5 +1,6 @@
+
 import express from 'express';
-import fs from 'fs-extra';
+import peleasRepository from '../repositories/peleasRepository.js';
 const router = express.Router();
 
 /**
@@ -21,7 +22,7 @@ const router = express.Router();
  */
 router.get('/estadisticas', async (req, res) => {
   try {
-    const data = await fs.readJson('./data/Peleas.json');
+    const data = await peleasRepository.getAllPeleas();
     // Solo mostrar id, round1, round2, round3 y Ganador
     const simple = data.map(p => {
       let j1 = 0, j2 = 0;
