@@ -39,9 +39,19 @@ async function saveHero(heroData) {
         throw error;
     }
 }
+// Buscar un héroe por alias (case-insensitive) en MongoDB
+async function getHeroByAlias(alias) {
+    try {
+        return await Hero.findOne({ alias: { $regex: new RegExp('^' + alias + '$', 'i') } }).lean();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
 
 export default {
     getHeroes,
+    getHeroByAlias,
     saveHero,
     deleteHeroById,
     updateHeroById

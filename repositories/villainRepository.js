@@ -37,9 +37,19 @@ async function deleteVillainById(id) {
         throw error;
     }
 }
+// Buscar un villano por alias (case-insensitive) en MongoDB
+async function getVillainByAlias(alias) {
+    try {
+        return await Villain.findOne({ alias: { $regex: new RegExp('^' + alias + '$', 'i') } });
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
 
 export default {
     getVillains,
+    getVillainByAlias,
     saveVillain,
     deleteVillainById,
     updateVillainById

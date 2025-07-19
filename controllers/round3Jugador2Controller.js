@@ -184,22 +184,29 @@ router.post('/round3jugador2/atacar', async (req, res) => {
     let danoBase = 0;
     let mensaje = '';
     if (AccionRound3 === 'Golpear') {
-      const golpes = [personaje2.golpeBasico1, personaje2.golpeBasico2, personaje2.golpeBasico3];
+      const golpes = [
+        Number(personaje2.golpeBasico1),
+        Number(personaje2.golpeBasico2),
+        Number(personaje2.golpeBasico3)
+      ];
       danoBase = golpes[golpeIndex];
       mensaje = 'Se ha golpeado al enemigo';
     } else {
-      danoBase = personaje2.danoHabilidad;
+      danoBase = Number(personaje2.danoHabilidad);
       mensaje = `Se ha activado la habilidad ${personaje2.nombreHabilidad}`;
     }
     // Crítico
+    let probCrit = Number(personaje2.probCrit);
+    let danoCrit = Number(personaje2.danoCrit);
     let danoCritico = danoBase;
-    if (Math.random() * 100 < personaje2.probCrit) {
-      danoCritico += danoBase * (personaje2.danoCrit / 100);
+    if (Math.random() * 100 < probCrit) {
+      danoCritico += danoBase * (danoCrit / 100);
     }
     // Multiplicador de poder
-    let danoConPoder = danoCritico + (danoCritico * (personaje2.poder / 10));
+    let poder = Number(personaje2.poder);
+    let danoConPoder = danoCritico + (danoCritico * (poder / 10));
     // Defensa del enemigo
-    let defensaEnemigo = personaje1.defensa || 0;
+    let defensaEnemigo = Number(personaje1.defensa) || 0;
     let defensaPorcentaje = defensaEnemigo / 20;
     let vidaRestada = Math.round(danoConPoder - (danoConPoder * defensaPorcentaje));
     // Actualizar vida del enemigo

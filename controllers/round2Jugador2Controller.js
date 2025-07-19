@@ -1,25 +1,27 @@
 import express from 'express';
-import fs from 'fs-extra';
-import path from 'path';
+
+import accionRound2Repository from '../repositories/accionRound2Repository.js';
+import enfrentamientoRepository from '../repositories/enfrentamientoRepository.js';
+import heroRepository from '../repositories/heroRepository.js';
+import villainRepository from '../repositories/villainRepository.js';
 
 
 const router = express.Router();
-const accionFile = path.resolve('./data/AccionRound2.json');
-const peleasFile = path.resolve('./data/Peleas.json');
-const enfrentamientosFile = path.resolve('./data/enfrentamientos.json');
-const heroesFile = path.resolve('./data/superheroes.json');
-const villainsFile = path.resolve('./data/villains.json');
 
-// Utilidad para buscar personaje por alias en ambos json (case-insensitive)
+
+// Utilidad para buscar personaje por alias en MongoDB (case-insensitive, solo consulta directa)
 async function buscarPersonajePorAlias(alias) {
-  const heroes = await fs.readJson(heroesFile);
-  const villains = await fs.readJson(villainsFile);
-  return heroes.concat(villains).find(p => p.alias.toLowerCase() === alias.toLowerCase());
+  // Buscar primero en héroes
+  let personaje = await heroRepository.getHeroByAlias(alias);
+  if (personaje) return personaje;
+  // Si no es héroe, buscar en villanos
+  personaje = await villainRepository.getVillainByAlias(alias);
+  return personaje;
 }
 
-// Utilidad para obtener el enfrentamiento activo (primer registro)
+// Utilidad para obtener el enfrentamiento activo (primer registro) desde MongoDB
 async function obtenerEnfrentamientoActivo() {
-  const enfrentamientos = await fs.readJson(enfrentamientosFile);
+  const enfrentamientos = await enfrentamientoRepository.getEnfrentamientos();
   return enfrentamientos[0];
 }
 
@@ -31,24 +33,9 @@ async function ganadorRound1() {
   return null;
 }
 
-// Registrar resultado de round 2 en Peleas.json
+// Registrar resultado de round 2 en la base de datos (implementar si es necesario)
 async function registrarGanadorRound2() {
-  const enf = await obtenerEnfrentamientoActivo();
-  const peleas = await fs.readJson(peleasFile);
-  let pelea = peleas.find(p => p.id === enf.id);
-  if (!pelea) return; // No hay registro de round 1
-  if (enf.VidaPersonaje1_2 === 0 && pelea.Round2_J1) return; // Ya registrado
-  if (enf.VidaPersonaje2_2 === 0 && pelea.Round2_J2) return; // Ya registrado
-  if (enf.VidaPersonaje1_2 === 0) {
-    pelea.Round2_J1 = 'You Lose';
-    pelea.Round2_J2 = 'You Win';
-  } else if (enf.VidaPersonaje2_2 === 0) {
-    pelea.Round2_J1 = 'You Win';
-    pelea.Round2_J2 = 'You Lose';
-  } else {
-    return;
-  }
-  await fs.writeJson(peleasFile, peleas);
+  // TODO: Implementar registro de ganador en la colección de peleas en MongoDB si es necesario
 }
 
 /**
@@ -140,7 +127,8 @@ router.get('/round2jugador2/estados-vida', async (req, res) => {
  */
 router.get('/round2jugador2/acciones', async (req, res) => {
   try {
-    const acciones = await fs.readJson(accionFile);
+    const enf = await obtenerEnfrentamientoActivo();
+    const acciones = await accionRound2Repository.getByEquipoYJugador(enf.ID_Equipo2);
     res.json(acciones);
   } catch (e) {
     res.status(500).json({ error: 'No se pudo obtener el registro de acciones.' });
@@ -161,7 +149,7 @@ router.get('/round2jugador2/acciones', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               AccionRound1:
+ *               AccionRound2:
  *                 type: string
  *                 enum: [Golpear, Usar habilidad]
  *                 description: Acción a realizar (solo 'Golpear' o 'Usar habilidad')
@@ -178,7 +166,8 @@ router.post('/round2jugador2/atacar', async (req, res) => {
       return res.status(400).json({ error: 'No se puede usar esta accion hasta establecer un ganador en el Round 1' });
     }
     const enf = await obtenerEnfrentamientoActivo();
-    const acciones = await fs.readJson(accionFile);
+    // Obtener todas las acciones del equipo desde MongoDB
+    const acciones = await accionRound2Repository.getByEquipoYJugador(enf.ID_Equipo2);
     // Si el jugador 2 ya perdió, mostrar mensaje YOU LOSE
     if (enf.VidaPersonaje2_2 === 0) {
       return res.status(400).json({ mensaje: 'YOU LOSE', detalle: 'El Round 2 ha concluido, Para seguir peleando valla al Round 3' });
@@ -193,7 +182,7 @@ router.post('/round2jugador2/atacar', async (req, res) => {
     }
     // Restricción: si el round 2 ya terminó
     if (enf.VidaPersonaje1_2 === 0 || enf.VidaPersonaje2_2 === 0) {
-      await registrarGanadorRound2();
+      // Aquí podrías registrar el ganador en la colección de peleas si lo deseas
       return res.status(400).json({ error: 'El Round 2 ha concluido, Para seguir peleando valla al Round 3' });
     }
     const alias2 = enf.AliasPersonaje2_2;
@@ -201,79 +190,77 @@ router.post('/round2jugador2/atacar', async (req, res) => {
     const personaje2 = await buscarPersonajePorAlias(alias2);
     const personaje1 = await buscarPersonajePorAlias(alias1);
     if (!personaje2) {
-      return res.status(400).json({ error: `No se encontró el personaje con alias '${alias2}' en superheroes.json ni villains.json` });
+      return res.status(400).json({ error: `No se encontró el personaje con alias '${alias2}' en la base de datos.` });
     }
     if (!personaje1) {
-      return res.status(400).json({ error: `No se encontró el personaje enemigo con alias '${alias1}' en superheroes.json ni villains.json` });
+      return res.status(400).json({ error: `No se encontró el personaje enemigo con alias '${alias1}' en la base de datos.` });
     }
     // Lógica de golpes y habilidad (idéntica a round 1 pero usando personaje2_2 como atacante y personaje1_2 como defensor)
     // Restricción de habilidad: solo cada 3 golpes básicos
     let lastHabilidadIndex = -1;
     for (let i = acciones.length - 1; i >= 0; i--) {
-      if (acciones[i].ID_Equipo1 === enf.ID_Equipo1 && acciones[i].jugador === 2 && acciones[i].AccionRound1 === 'Usar habilidad') {
+      if (acciones[i].ID_Equipo2 === enf.ID_Equipo2 && acciones[i].jugador === 2 && acciones[i].AccionRound2 === 'Usar habilidad') {
         lastHabilidadIndex = i;
         break;
       }
     }
     let golpesDesdeUltimaHabilidad = 0;
     for (let i = acciones.length - 1; i > lastHabilidadIndex; i--) {
-      if (acciones[i].ID_Equipo1 === enf.ID_Equipo1 && acciones[i].jugador === 2 && acciones[i].AccionRound1 === 'Golpear') {
+      if (acciones[i].ID_Equipo2 === enf.ID_Equipo2 && acciones[i].jugador === 2 && acciones[i].AccionRound2 === 'Golpear') {
         golpesDesdeUltimaHabilidad++;
       }
     }
-    if (req.body.AccionRound1 === 'Usar habilidad') {
+    if (req.body.AccionRound2 === 'Usar habilidad') {
       if (golpesDesdeUltimaHabilidad < 3) {
         return res.status(400).json({ error: 'No se puede utilizar habilidad si no se han realizado 3 golpes basicos, una vez ya hecho 3 golpes basicos entonces ya pude utilizar la habilidad pero tendra que realizar 3 golpes basicos de nuevo para volver a usarla' });
       }
     }
     // Determinar daño base
-    let golpeIndex = acciones.filter(a => a.ID_Equipo1 === enf.ID_Equipo1 && a.jugador === 2 && a.AccionRound1 === 'Golpear').length % 3;
+    let golpeIndex = acciones.filter(a => a.ID_Equipo2 === enf.ID_Equipo2 && a.jugador === 2 && a.AccionRound2 === 'Golpear').length % 3;
     let danoBase = 0;
     let mensaje = '';
-    if (req.body.AccionRound1 === 'Golpear') {
-      const golpes = [personaje2.golpeBasico1, personaje2.golpeBasico2, personaje2.golpeBasico3];
+    if (req.body.AccionRound2 === 'Golpear') {
+      const golpes = [
+        Number(personaje2.golpeBasico1),
+        Number(personaje2.golpeBasico2),
+        Number(personaje2.golpeBasico3)
+      ];
       danoBase = golpes[golpeIndex];
       mensaje = 'Se ha golpeado al enemigo';
     } else {
-      danoBase = personaje2.danoHabilidad;
+      danoBase = Number(personaje2.danoHabilidad);
       mensaje = `Se ha activado la habilidad ${personaje2.nombreHabilidad}`;
     }
     // Proceso 2: Probabilidad de crítico
+    let probCrit = Number(personaje2.probCrit);
+    let danoCrit = Number(personaje2.danoCrit);
     let danoCritico = danoBase;
-    if (Math.random() * 100 < personaje2.probCrit) {
-      danoCritico += danoBase * (personaje2.danoCrit / 100);
+    if (Math.random() * 100 < probCrit) {
+      danoCritico += danoBase * (danoCrit / 100);
     }
     // Proceso 3: Multiplicador de poder
-    let danoConPoder = danoCritico + (danoCritico * (personaje2.poder / 10));
+    let poder = Number(personaje2.poder);
+    let danoConPoder = danoCritico + (danoCritico * (poder / 10));
     // Proceso 4: Defensa del enemigo
-    let defensaEnemigo = personaje1.defensa || 0;
+    let defensaEnemigo = Number(personaje1.defensa) || 0;
     let defensaPorcentaje = defensaEnemigo / 20; // 10 = 50%
     let vidaRestada = danoConPoder - (danoConPoder * defensaPorcentaje);
     vidaRestada = Math.round(vidaRestada);
-    // Actualizar vida del enemigo en enfrentamientos.json
+    // Actualizar vida del enemigo en la base de datos (MongoDB)
     enf.VidaPersonaje1_2 = Math.max(0, enf.VidaPersonaje1_2 - vidaRestada);
-    // Guardar acción
+    await enfrentamientoRepository.updateVidaPersonaje1_2(enf.id, enf.VidaPersonaje1_2);
+    // Guardar acción en MongoDB
     const nuevaAccion = {
-      TurnoRound1: acciones.length + 1,
-      ID_Equipo1: enf.ID_Equipo1,
-      AccionRound1: req.body.AccionRound1,
-      DañoRealizadoRound1: Math.round(danoConPoder),
-      VidaRestadaEnemigoRound1: vidaRestada,
+      ID_Equipo2: enf.ID_Equipo2,
+      AccionRound2: req.body.AccionRound2,
+      DañoRealizadoRound2: Math.round(danoConPoder),
+      VidaRestadaEnemigoRound2: vidaRestada,
       jugador: 2
     };
-    acciones.push(nuevaAccion);
-    await fs.writeJson(accionFile, acciones);
-    // Guardar nueva vida en enfrentamientos.json
-    const enfrentamientos = await fs.readJson(enfrentamientosFile);
-    enfrentamientos[0].VidaPersonaje1_2 = enf.VidaPersonaje1_2;
-    await fs.writeJson(enfrentamientosFile, enfrentamientos);
+    await accionRound2Repository.addAccion(nuevaAccion);
     // Si la vida del enemigo llegó a 0, registrar resultado y mostrar mensajes de fin de round SOLO para el ganador
     if (enf.VidaPersonaje1_2 === 0) {
-      const peleasService = await import('../services/peleasService.js');
-      await peleasService.default.registrarRound({
-        id: enf.id,
-        round2: 'Jugador 2'
-      });
+      // Aquí podrías registrar el ganador en la colección de peleas si lo deseas
       return res.status(201).json({ mensaje: 'YOU WIN', detalle: 'El Round 2 ha concluido, Para seguir peleando valla al Round 3', accion: nuevaAccion });
     }
     res.status(201).json({ mensaje, accion: nuevaAccion });

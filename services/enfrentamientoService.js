@@ -56,20 +56,15 @@ async function deleteEnfrentamiento(id) {
     if (deleteResult.deletedCount === 0) {
         throw new Error('No se pudo eliminar el enfrentamiento de la base de datos');
     }
-    // Eliminar acciones asociadas en AccionRound1.json, AccionRound2.json y AccionRound3.json
-    const accionRound1Path = './data/AccionRound1.json';
-    const accionRound2Path = './data/AccionRound2.json';
-    const accionRound3Path = './data/AccionRound3.json';
-    let accionesRound1 = await fs.readJson(accionRound1Path);
-    let accionesRound2 = await fs.readJson(accionRound2Path);
-    let accionesRound3 = await fs.readJson(accionRound3Path);
-    // Filtrar acciones por ID_Equipo1 e ID_Equipo2 del enfrentamiento eliminado
-    accionesRound1 = accionesRound1.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2);
-    accionesRound2 = accionesRound2.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2);
-    accionesRound3 = accionesRound3.filter(a => a.ID_Equipo1 !== ID_Equipo1 && a.ID_Equipo1 !== ID_Equipo2 && a.ID_Equipo2 !== ID_Equipo1 && a.ID_Equipo2 !== ID_Equipo2);
-    await fs.writeJson(accionRound1Path, accionesRound1);
-    await fs.writeJson(accionRound2Path, accionesRound2);
-    await fs.writeJson(accionRound3Path, accionesRound3);
+    // Eliminar acciones asociadas en la colección AccionRound1 de MongoDB
+    const accionRound1Repository = (await import('../repositories/accionRound1Repository.js')).default;
+    await accionRound1Repository.deleteByEquipoId(ID_Equipo1);
+    await accionRound1Repository.deleteByEquipoId(ID_Equipo2);
+
+    // Eliminar acciones asociadas en la colección AccionRound2 de MongoDB
+    const accionRound2Repository = (await import('../repositories/accionRound2Repository.js')).default;
+    await accionRound2Repository.deleteByEquipoId(ID_Equipo1);
+    await accionRound2Repository.deleteByEquipoId(ID_Equipo2);
 
     // Eliminar todo el contenido de Peleas.json
     const peleasPath = './data/Peleas.json';
