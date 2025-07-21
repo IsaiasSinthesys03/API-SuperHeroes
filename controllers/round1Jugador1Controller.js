@@ -49,7 +49,7 @@ async function obtenerEnfrentamientoActivo() {
  *                 VidaEnemigo:
  *                   type: integer
  */
-router.get('/round1/estados-vida', async (req, res) => {
+router.get('/estados-vida', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
     // Registro automático de resultado si la vida llega a 0
@@ -101,7 +101,7 @@ router.get('/round1/estados-vida', async (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/AccionRound1'
  */
-router.get('/round1/acciones', async (req, res) => {
+router.get('/acciones', async (req, res) => {
   try {
     // Obtener todas las acciones desde MongoDB
     const acciones = await accionRound1Repository.getAll();
@@ -135,7 +135,7 @@ router.get('/round1/acciones', async (req, res) => {
  *       400:
  *         description: Error en la acción
  */
-router.post('/round1/atacar', async (req, res) => {
+router.post('/atacar', async (req, res) => {
   try {
     const { AccionRound1 } = req.body;
     if (!['Golpear', 'Usar habilidad'].includes(AccionRound1)) {

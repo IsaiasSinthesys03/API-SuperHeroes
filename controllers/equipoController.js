@@ -91,7 +91,7 @@ const router = express.Router();
  */
 
 // GET - Mostrar Equipos
-router.get("/equipos", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const equipos = await equipoService.getAllEquipos();
         // Limpiar la respuesta para mostrar solo los campos requeridos
@@ -111,7 +111,7 @@ router.get("/equipos", async (req, res) => {
 });
 
 // POST - Agregar Equipos
-router.post("/equipos", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const equipo = req.body;
         const newEquipo = await equipoService.addEquipo(equipo);
@@ -122,7 +122,7 @@ router.post("/equipos", async (req, res) => {
 });
 
 // DELETE - Eliminar Equipo por ID
-router.delete("/equipos/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const result = await equipoService.deleteEquipo(id);

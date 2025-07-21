@@ -47,7 +47,7 @@ async function puedeUsarRound3() {
  *                 vida:
  *                   type: integer
  */
-router.get('/round3jugador1/estados-vida', async (req, res) => {
+router.get('/estados-vida', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
     // Registro automático de resultado si la vida llega a 0 en round 3
@@ -108,7 +108,7 @@ router.get('/round3jugador1/estados-vida', async (req, res) => {
  *               items:
  *                 type: object
  */
-router.get('/round3jugador1/acciones', async (req, res) => {
+router.get('/acciones', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
     // Obtener acciones de ambos equipos (como en Round 1 y 2)
@@ -150,7 +150,7 @@ router.get('/round3jugador1/acciones', async (req, res) => {
  *       400:
  *         description: Error en la acción o restricción de juego
  */
-router.post('/round3jugador1/atacar', async (req, res) => {
+router.post('/atacar', async (req, res) => {
   if (!await puedeUsarRound3()) {
     return res.status(400).json({ error: 'No se puede usar esta acción hasta establecer un ganador en el Round 1 y 2' });
   }

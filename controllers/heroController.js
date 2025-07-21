@@ -326,7 +326,7 @@ import Hero from "../models/heroModel.js";
 const router = express.Router();
 
 
-router.get("/heroes", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const heroes = await heroService.getAllHeroes();
         // Eliminar manualmente _id y __v de cada héroe
@@ -340,7 +340,7 @@ router.get("/heroes", async (req, res) => {
     }
 });
 
-router.post("/heroes",
+router.post("/",
     [
         check('name').not().isEmpty().withMessage('El nombre es requerido'),
         check('alias').not().isEmpty().withMessage('El alias es requerido')
@@ -365,7 +365,7 @@ router.post("/heroes",
         }
 });
 
-router.put("/heroes/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
     try {
         const updatedHero = await heroService.updateHero(req.params.id, req.body);
         res.json(updatedHero);
@@ -374,7 +374,7 @@ router.put("/heroes/:id", async (req, res) => {
     }
 });
 
-router.delete('/heroes/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const result = await heroService.deleteHero(req.params.id);
         res.json(result);
@@ -383,7 +383,7 @@ router.delete('/heroes/:id', async (req, res) => {
     }
 });
 
-router.get('/heroes/city/:city', async (req, res) => {
+router.get('/city/:city', async (req, res) => {
   try {
     const heroes = await heroService.findHeroesByCity(req.params.city);
     if (heroes.length === 0) {
@@ -395,7 +395,7 @@ router.get('/heroes/city/:city', async (req, res) => {
   }
 });
 
-router.post('/heroes/:id/enfrentar', async (req, res) => {
+router.post('/:id/enfrentar', async (req, res) => {
   try {
     const result = await heroService.faceVillain(req.params.id, req.body.villainId);
     res.json({ message: result });

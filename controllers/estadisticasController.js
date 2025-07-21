@@ -20,7 +20,7 @@ const router = express.Router();
  *               items:
  *                 type: object
  */
-router.get('/estadisticas', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const data = await peleasRepository.getAllPeleas();
     // Solo mostrar id, round1, round2, round3 y Ganador

@@ -92,7 +92,7 @@ import enfrentamientoService from "../services/enfrentamientoService.js";
 const router = express.Router();
 
 // GET - Mostrar Enfrentamientos
-router.get("/enfrentamientos", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const enfrentamientos = await enfrentamientoService.getAllEnfrentamientos();
         // Convertir a objeto plano usando toJSON para aplicar el transform del schema
@@ -108,7 +108,7 @@ router.get("/enfrentamientos", async (req, res) => {
 });
 
 // POST - Agregar Enfrentamiento
-router.post("/enfrentamientos", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const data = req.body;
         const newEnfrentamiento = await enfrentamientoService.addEnfrentamiento(data);
@@ -119,7 +119,7 @@ router.post("/enfrentamientos", async (req, res) => {
 });
 
 // DELETE - Eliminar Enfrentamiento por ID
-router.delete("/enfrentamientos/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const result = await enfrentamientoService.deleteEnfrentamiento(id);

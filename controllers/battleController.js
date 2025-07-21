@@ -92,7 +92,7 @@ const router = express.Router();
  */
 
 // GET todas las batallas
-router.get("/battles", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const battles = await battleService.getAllBattles();
         res.json(battles);
@@ -102,7 +102,7 @@ router.get("/battles", async (req, res) => {
 });
 
 // POST nueva batalla
-router.post("/battles", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const { heroAlias, villainAlias } = req.body;
         const newBattle = await battleService.addBattle({ heroAlias, villainAlias });
@@ -113,7 +113,7 @@ router.post("/battles", async (req, res) => {
 });
 
 // PUT editar batalla
-router.put("/battles/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
     try {
         const { heroAlias, villainAlias } = req.body;
         const updatedBattle = await battleService.updateBattle(req.params.id, { heroAlias, villainAlias });
@@ -124,7 +124,7 @@ router.put("/battles/:id", async (req, res) => {
 });
 
 // DELETE eliminar batalla
-router.delete("/battles/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
         const result = await battleService.deleteBattle(req.params.id);
         res.json(result);

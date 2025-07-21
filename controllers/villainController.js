@@ -152,7 +152,7 @@ const router = express.Router();
  *           description: Defensa del personaje, debe estar entre 1 y 10
  */
 
-router.get("/villains", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const villains = await villainService.getAllVillains();
         // Eliminar manualmente _id y __v de cada villano
@@ -166,7 +166,7 @@ router.get("/villains", async (req, res) => {
     }
 });
 
-router.post("/villains",
+router.post("/",
     [
         check('name').not().isEmpty().withMessage('El nombre es requerido'),
         check('alias').not().isEmpty().withMessage('El alias es requerido')
@@ -192,7 +192,7 @@ router.post("/villains",
         }
 });
 
-router.put("/villains/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
     try {
         const updatedVillain = await villainService.updateVillain(req.params.id, req.body);
         res.json(updatedVillain);
@@ -201,7 +201,7 @@ router.put("/villains/:id", async (req, res) => {
     }
 });
 
-router.delete('/villains/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const result = await villainService.deleteVillain(req.params.id);
         res.json(result);
@@ -210,7 +210,7 @@ router.delete('/villains/:id', async (req, res) => {
     }
 });
 
-router.get('/villains/city/:city', async (req, res) => {
+router.get('/city/:city', async (req, res) => {
   try {
     const villains = await villainService.findVillainsByCity(req.params.city);
     if (villains.length === 0) {

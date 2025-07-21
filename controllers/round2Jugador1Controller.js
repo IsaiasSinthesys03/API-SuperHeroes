@@ -59,7 +59,7 @@ async function registrarGanadorRound1() {
  *                 VidaEnemigo:
  *                   type: integer
  */
-router.get('/round2jugador1/estados-vida', async (req, res) => {
+router.get('/estados-vida', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
     // Restricción: solo si hay ganador en round 1
@@ -110,7 +110,7 @@ router.get('/round2jugador1/estados-vida', async (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/AccionRound1'
  */
-router.get('/round2jugador1/acciones', async (req, res) => {
+router.get('/acciones', async (req, res) => {
   try {
     const enf = await obtenerEnfrentamientoActivo();
     const acciones = await accionRound2Repository.getByEquipoYJugador(enf.ID_Equipo2);
@@ -144,7 +144,7 @@ router.get('/round2jugador1/acciones', async (req, res) => {
  *       400:
  *         description: Error en la acción
  */
-router.post('/round2jugador1/atacar', async (req, res) => {
+router.post('/atacar', async (req, res) => {
   try {
     // Restricción: solo si hay ganador en round 1
     if (!await ganadorRound1()) {
