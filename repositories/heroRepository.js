@@ -49,10 +49,21 @@ async function getHeroByAlias(alias) {
     }
 }
 
+async function getHeroesByUsername(username) {
+    try {
+        // Buscar por username case-insensitive
+        return await Hero.find({ username: { $regex: new RegExp('^' + username + '$', 'i') } }).lean();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
 export default {
     getHeroes,
     getHeroByAlias,
     saveHero,
     deleteHeroById,
-    updateHeroById
+    updateHeroById,
+    getHeroesByUsername
 };

@@ -1,8 +1,7 @@
 import heroRepository from '../repositories/heroRepository.js';
 
-async function getAllHeroes() {
-    const heroes = await heroRepository.getHeroes();
-    // Asegura que los golpes básicos estén presentes en la respuesta
+async function getAllHeroes(username) {
+    const heroes = await heroRepository.getHeroesByUsername(username);
     return heroes.map(h => ({
         ...h,
         golpeBasico1: h.golpeBasico1,
@@ -12,7 +11,7 @@ async function getAllHeroes() {
     }));
 }
 
-async function addHero(hero) {
+async function addHero(hero, username) {
     if (!hero.name || !hero.alias) {
         throw new Error("El héroe debe tener un nombre y un alias.");
     }
@@ -78,6 +77,7 @@ async function addHero(hero) {
         newId = Math.max(...heroes.map(h => h.id)) + 1;
     }
     hero.id = newId;
+    hero.username = username;
     const savedHero = await heroRepository.saveHero(hero);
     return savedHero;
 }

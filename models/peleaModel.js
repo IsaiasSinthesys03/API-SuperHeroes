@@ -5,7 +5,8 @@ const peleaSchema = new mongoose.Schema({
   round1: String,
   round2: String,
   round3: String,
-  GanadorRound1: String
+  GanadorRound1: String,
+  username: { type: String, required: true } // Multiusuario
 });
 
 export default mongoose.model('Pelea', peleaSchema);

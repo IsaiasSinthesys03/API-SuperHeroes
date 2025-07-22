@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 
 
@@ -18,6 +17,7 @@ const enfrentamientoSchema = new mongoose.Schema({
   VidaPersonaje2_2: Number,
   AliasPersonaje2_3: String,
   VidaPersonaje2_3: Number,
+  username: { type: String, required: true } // Multiusuario
   // Puedes agregar más campos si lo necesitas
 }, {
   toJSON: {

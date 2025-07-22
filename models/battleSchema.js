@@ -7,7 +7,8 @@ const AutoIncrement = mongooseSequence(mongoose);
 const battleSchema = new mongoose.Schema({
   id: { type: Number, unique: true },
   heroAlias: String,
-  villainAlias: String
+  villainAlias: String,
+  username: { type: String, required: true } // Multiusuario
 }, {
   toJSON: {
     transform: function(doc, ret) {

@@ -19,7 +19,8 @@ const heroSchema = new mongoose.Schema({
   danoHabilidad: Number,
   poder: Number,
   defensa: Number,
-  vida: { type: Number, default: 100 }
+  vida: { type: Number, default: 100 },
+  username: { type: String, required: true } // Multiusuario
 }, {
   toJSON: {
     transform: function(doc, ret) {

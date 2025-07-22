@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 
 
@@ -9,7 +8,8 @@ const equipoSchema = new mongoose.Schema({
   Heroe_O_Villano2: String,
   AliasPersonaje2: String,
   Heroe_O_Villano3: String,
-  AliasPersonaje3: String
+  AliasPersonaje3: String,
+  username: { type: String, required: true } // Multiusuario
 }, {
   toJSON: {
     transform: function(doc, ret) {

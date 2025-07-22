@@ -325,6 +325,31 @@ import Hero from "../models/heroModel.js";
 
 const router = express.Router();
 
+// GET / - Solo los del usuario
+router.get('/', async (req, res) => {
+  try {
+    const username = req.user?.username;
+    console.log('GET /heroes username:', username);
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    const heroes = await heroService.getAllHeroes(username);
+    console.log('GET /heroes resultado:', heroes);
+    res.json(heroes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /heroes - Asociar al usuario
+router.post('/heroes', async (req, res) => {
+  try {
+    const username = req.user.username;
+    const heroData = { ...req.body, username };
+    const hero = await heroRepository.saveHero(heroData);
+    res.status(201).json(hero);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 router.get("/", async (req, res) => {
     try {
@@ -352,35 +377,52 @@ router.post("/",
         }
 
         try {
-            // Limpiar el body para evitar campos no deseados
             let { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida } = req.body;
             if (typeof vida === 'undefined' || vida === null) vida = 100;
             if (vida > 200) vida = 200;
-            // No crear instancia de la clase Hero, solo pasar objeto plano
+            // Agregar el username del usuario autenticado
+            const username = req.user?.username;
+            if (!username) return res.status(401).json({ error: 'No autenticado' });
             const heroData = { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida };
-            const addedHero = await heroService.addHero(heroData);
+            const addedHero = await heroService.addHero(heroData, username);
             res.status(201).json(addedHero);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
 });
 
-router.put("/:id", async (req, res) => {
-    try {
-        const updatedHero = await heroService.updateHero(req.params.id, req.body);
-        res.json(updatedHero);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
+router.put('/:id', async (req, res) => {
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    // Buscar el héroe por id y username
+    const heroes = await heroService.getAllHeroes(username);
+    const hero = heroes.find(h => h.id === parseInt(req.params.id));
+    if (!hero) {
+      return res.status(403).json({ error: 'No tienes permiso para editar este héroe.' });
     }
+    const updatedHero = await heroService.updateHero(req.params.id, req.body);
+    res.json(updatedHero);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
 });
 
 router.delete('/:id', async (req, res) => {
-    try {
-        const result = await heroService.deleteHero(req.params.id);
-        res.json(result);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    // Buscar el héroe por id y username
+    const heroes = await heroService.getAllHeroes(username);
+    const hero = heroes.find(h => h.id === parseInt(req.params.id));
+    if (!hero) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar este héroe.' });
     }
+    const result = await heroService.deleteHero(req.params.id);
+    res.json(result);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
 });
 
 router.get('/city/:city', async (req, res) => {
