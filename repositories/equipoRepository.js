@@ -1,4 +1,3 @@
-
 import Equipo from '../models/equipoSchema.js';
 
 async function getEquipos() {
@@ -27,9 +26,28 @@ async function deleteEquipo(id) {
         throw error;
     }
 }
+async function getEquiposByUsername(username) {
+    try {
+        return await Equipo.find({ username: { $regex: new RegExp('^' + username + '$', 'i') } }).lean();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+async function deleteEquipoByIdAndUsername(id, username) {
+    try {
+        return await Equipo.deleteOne({ id: parseInt(id), username: { $regex: new RegExp('^' + username + '$', 'i') } });
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
 export default {
     getEquipos,
     saveEquipo,
-    deleteEquipo
+    deleteEquipo,
+    getEquiposByUsername,
+    deleteEquipoByIdAndUsername
 };
