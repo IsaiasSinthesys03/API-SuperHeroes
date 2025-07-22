@@ -94,7 +94,9 @@ const router = express.Router();
 // GET - Mostrar Enfrentamientos
 router.get("/", async (req, res) => {
     try {
-        const enfrentamientos = await enfrentamientoService.getAllEnfrentamientos();
+        const username = req.user?.username;
+        if (!username) return res.status(401).json({ error: 'No autenticado' });
+        const enfrentamientos = await enfrentamientoService.getAllEnfrentamientos(username);
         // Convertir a objeto plano usando toJSON para aplicar el transform del schema
         const cleanEnfrentamientos = enfrentamientos.map(e => {
             const obj = e.toJSON ? e.toJSON() : e;
@@ -110,8 +112,10 @@ router.get("/", async (req, res) => {
 // POST - Agregar Enfrentamiento
 router.post("/", async (req, res) => {
     try {
+        const username = req.user?.username;
+        if (!username) return res.status(401).json({ error: 'No autenticado' });
         const data = req.body;
-        const newEnfrentamiento = await enfrentamientoService.addEnfrentamiento(data);
+        const newEnfrentamiento = await enfrentamientoService.addEnfrentamiento(data, username);
         res.status(201).json(newEnfrentamiento);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -121,11 +125,17 @@ router.post("/", async (req, res) => {
 // DELETE - Eliminar Enfrentamiento por ID
 router.delete("/:id", async (req, res) => {
     try {
+        const username = req.user?.username;
+        if (!username) return res.status(401).json({ error: 'No autenticado' });
         const { id } = req.params;
-        const result = await enfrentamientoService.deleteEnfrentamiento(id);
-        res.json(result);
+        const result = await enfrentamientoService.deleteEnfrentamiento(id, username);
+        if (result && result.message) {
+            res.json({ mensaje: result.message });
+        } else {
+            res.status(403).json({ error: "No tienes permiso para eliminar este enfrentamiento o no existe" });
+        }
     } catch (error) {
-        res.status(404).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 

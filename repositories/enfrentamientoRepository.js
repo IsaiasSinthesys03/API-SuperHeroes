@@ -1,6 +1,3 @@
-
-
-
 import Enfrentamiento from '../models/enfrentamientoSchema.js';
 
 async function getEnfrentamientos() {
@@ -19,6 +16,15 @@ async function saveEnfrentamiento(enfrentamientoData) {
     } catch (error) {
         console.error(error);
         throw error;
+    }
+}
+
+async function getEnfrentamientosByUsername(username) {
+    try {
+        return await Enfrentamiento.find({ username: { $regex: new RegExp('^' + username + '$', 'i') } });
+    } catch (error) {
+        console.error(error);
+        return [];
     }
 }
 
@@ -99,5 +105,14 @@ export default {
             console.error(error);
             throw error;
         }
-    }
+    },
+    deleteEnfrentamientoByIdAndUsername: async function (id, username) {
+        try {
+            return await Enfrentamiento.deleteOne({ id: parseInt(id), username: { $regex: new RegExp('^' + username + '$', 'i') } });
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    },
+    getEnfrentamientosByUsername
 };
