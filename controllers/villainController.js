@@ -152,67 +152,78 @@ const router = express.Router();
  *           description: Defensa del personaje, debe estar entre 1 y 10
  */
 
-router.get("/", async (req, res) => {
-    try {
-        const villains = await villainService.getAllVillains();
-        // Eliminar manualmente _id y __v de cada villano
-        const cleanVillains = villains.map(v => {
-            const { _id, __v, ...rest } = v;
-            return rest;
-        });
-        res.json(cleanVillains);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+// GET /villains - Solo los del usuario
+router.get('/', async (req, res) => {
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    const villains = await villainService.getAllVillains(username);
+    res.json(villains);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /villains - Asociar al usuario
+router.post('/', [
+  check('name').not().isEmpty().withMessage('El nombre es requerido'),
+  check('alias').not().isEmpty().withMessage('El alias es requerido')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if(!errors.isEmpty()){
+    return res.status(400).json({ error : errors.array() });
+  }
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    const villainData = { ...req.body, username };
+    const addedVillain = await villainService.addVillain(villainData, username);
+    res.status(201).json(addedVillain);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /villains/:id - Solo los del usuario
+router.put('/:id', async (req, res) => {
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    const villains = await villainService.getAllVillains(username);
+    const villain = villains.find(v => v.id === parseInt(req.params.id));
+    if (!villain) {
+      return res.status(403).json({ error: 'No tienes permiso para editar este villano.' });
     }
+    const updatedVillain = await villainService.updateVillain(req.params.id, req.body);
+    res.json(updatedVillain);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
 });
 
-router.post("/",
-    [
-        check('name').not().isEmpty().withMessage('El nombre es requerido'),
-        check('alias').not().isEmpty().withMessage('El alias es requerido')
-    ], 
-    async (req, res) => {
-        const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({ error : errors.array() });
-        }
-
-        try {
-            let { name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida } = req.body;
-            // Si no se especifica vida, poner 100 por defecto
-            if (typeof vida === 'undefined' || vida === null) vida = 100;
-            // Limitar vida máxima a 200
-            if (vida > 200) vida = 200;
-            const newVillain = new Villain(null, name, alias, city, team, golpeBasico1, golpeBasico2, golpeBasico3, danoCrit, probCrit, nombreHabilidad, danoHabilidad, poder, defensa, vida);
-            const addedVillain = await villainService.addVillain(newVillain);
-
-            res.status(201).json(addedVillain);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-});
-
-router.put("/:id", async (req, res) => {
-    try {
-        const updatedVillain = await villainService.updateVillain(req.params.id, req.body);
-        res.json(updatedVillain);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-
+// DELETE /villains/:id - Solo los del usuario
 router.delete('/:id', async (req, res) => {
-    try {
-        const result = await villainService.deleteVillain(req.params.id);
-        res.json(result);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    const villains = await villainService.getAllVillains(username);
+    const villain = villains.find(v => v.id === parseInt(req.params.id));
+    if (!villain) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar este villano.' });
     }
+    const result = await villainService.deleteVillain(req.params.id);
+    res.json(result);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
 });
 
+// GET /villains/city/:city - Solo los del usuario
 router.get('/city/:city', async (req, res) => {
   try {
-    const villains = await villainService.findVillainsByCity(req.params.city);
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    const villains = await villainService.findVillainsByCity(req.params.city, username);
     if (villains.length === 0) {
       return res.status(404).json({ error: 'Ciudad No Encontrada, Intentelo de Nuevo' });
     }

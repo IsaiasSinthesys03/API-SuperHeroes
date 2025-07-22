@@ -1,21 +1,17 @@
 import villainRepository from '../repositories/villainRepository.js';
 
-async function getAllVillains() {
-    const villains = await villainRepository.getVillains();
-    // Convertir cada documento a objeto plano y asegurar que los golpes básicos estén presentes
-    return villains.map(v => {
-        const obj = (typeof v.toObject === 'function') ? v.toObject() : v;
-        return {
-            ...obj,
-            golpeBasico1: obj.golpeBasico1,
-            golpeBasico2: obj.golpeBasico2,
-            golpeBasico3: obj.golpeBasico3,
-            defensa: obj.defensa
-        };
-    });
+async function getAllVillains(username) {
+    const villains = await villainRepository.getVillainsByUsername(username);
+    return villains.map(v => ({
+        ...v,
+        golpeBasico1: v.golpeBasico1,
+        golpeBasico2: v.golpeBasico2,
+        golpeBasico3: v.golpeBasico3,
+        defensa: v.defensa
+    }));
 }
 
-async function addVillain(villain) {
+async function addVillain(villain, username) {
     if (!villain.name || !villain.alias) {
         throw new Error("El villano debe tener un nombre y un alias.");
     }
@@ -43,9 +39,9 @@ async function addVillain(villain) {
     if (villain.probCrit > 100) {
         throw new Error("No se aceptan valores mayores 100, Intentelo Nuevamente");
     }
-    // Validar nombre de habilidad único
-    const villains = await villainRepository.getVillains();
-    if (villains.some(v => v.nombreHabilidad && v.nombreHabilidad.toLowerCase() === villain.nombreHabilidad.toLowerCase())) {
+    // Validar nombre de habilidad único (por usuario)
+    const userVillains = await villainRepository.getVillainsByUsername(username);
+    if (userVillains.some(v => v.nombreHabilidad && v.nombreHabilidad.toLowerCase() === villain.nombreHabilidad.toLowerCase())) {
         throw new Error("La habilidad ya es existente, Intentelo de nuevo con otro nombre");
     }
     // Validar daño habilidad
@@ -69,12 +65,14 @@ async function addVillain(villain) {
     if (villain.defensa > 10) {
         throw new Error("No se aceptan valores mayores de 10, Intentelo Nuevamente");
     }
-    if (villains.some(v => v.alias.toLowerCase() === villain.alias.toLowerCase())) {
+    if (userVillains.some(v => v.alias.toLowerCase() === villain.alias.toLowerCase())) {
         throw new Error("El alias ya esta en uso, Intento con otro Nuevo");
     }
     // Eliminar _id si viene en el body para evitar duplicados
     if ('_id' in villain) delete villain._id;
-    const newId = villains.length > 0 ? Math.max(...villains.map(v => v.id)) + 1 : 1;
+    // Obtener todos los villanos globalmente para asignar id único
+    const allVillains = await villainRepository.getVillains();
+    const newId = allVillains.length > 0 ? Math.max(...allVillains.map(v => v.id)) + 1 : 1;
     const newVillain = { ...villain, id: newId };
     const savedVillain = await villainRepository.saveVillain(newVillain);
     return savedVillain;

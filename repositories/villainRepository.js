@@ -10,9 +10,20 @@ async function updateVillainById(id, updateData) {
 }
 import Villain from '../models/villainSchema.js';
 
-async function getVillains() {
+async function getVillainsByUsername(username) {
     try {
-        return await Villain.find();
+        return await Villain.find({ username: { $regex: new RegExp('^' + username + '$', 'i') } }).lean();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+async function getVillainsByCityAndUsername(city, username) {
+    try {
+        return await Villain.find({
+            city: { $regex: new RegExp('^' + city + '$', 'i') },
+            username: { $regex: new RegExp('^' + username + '$', 'i') }
+        }).lean();
     } catch (error) {
         console.error(error);
         return [];
@@ -47,10 +58,21 @@ async function getVillainByAlias(alias) {
     }
 }
 
+async function getVillains() {
+    try {
+        return await Villain.find({}).lean();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
 export default {
-    getVillains,
+    getVillainsByUsername,
     getVillainByAlias,
     saveVillain,
     deleteVillainById,
-    updateVillainById
+    updateVillainById,
+    getVillainsByCityAndUsername,
+    getVillains // <-- Agregado para uso global
 };
