@@ -64,22 +64,15 @@ async function registrarGanadorRound2() {
  */
 router.get('/estados-vida', async (req, res) => {
   try {
-    const enf = await obtenerEnfrentamientoActivo();
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    // Buscar enfrentamiento solo del usuario
+    const enfrentamientos = await enfrentamientoRepository.getEnfrentamientosByUsername(username);
+    const enf = enfrentamientos[0];
+    if (!enf) return res.status(404).json({ error: 'No se encontró enfrentamiento para el usuario' });
     // Restricción: solo si hay ganador en round 1
-    if (!await ganadorRound1()) {
+    if (!(enf.VidaPersonaje1_1 === 0 || enf.VidaPersonaje2_1 === 0)) {
       return res.status(400).json({ error: 'No se puede usar esta accion hasta establecer un ganador en el Round 1' });
-    }
-    // Registro automático de resultado si la vida llega a 0 en round 2
-    if (enf.VidaPersonaje1_2 === 0 || enf.VidaPersonaje2_2 === 0) {
-      let Round2_J1, Round2_J2;
-      if (enf.VidaPersonaje1_2 === 0) {
-        Round2_J1 = 'You Lose';
-        Round2_J2 = 'You Win';
-      } else {
-        Round2_J1 = 'You Win';
-        Round2_J2 = 'You Lose';
-      }
-
     }
     // Registro automático de resultado si la vida llega a 0 en round 2
     if (enf.VidaPersonaje1_2 === 0 || enf.VidaPersonaje2_2 === 0) {
@@ -127,8 +120,9 @@ router.get('/estados-vida', async (req, res) => {
  */
 router.get('/acciones', async (req, res) => {
   try {
-    const enf = await obtenerEnfrentamientoActivo();
-    const acciones = await accionRound2Repository.getByEquipoYJugador(enf.ID_Equipo2);
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
+    const acciones = await accionRound2Repository.getAllByUsername(username);
     res.json(acciones);
   } catch (e) {
     res.status(500).json({ error: 'No se pudo obtener el registro de acciones.' });
@@ -165,6 +159,8 @@ router.post('/atacar', async (req, res) => {
     if (!await ganadorRound1()) {
       return res.status(400).json({ error: 'No se puede usar esta accion hasta establecer un ganador en el Round 1' });
     }
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
     const enf = await obtenerEnfrentamientoActivo();
     // Obtener todas las acciones del equipo desde MongoDB
     const acciones = await accionRound2Repository.getByEquipoYJugador(enf.ID_Equipo2);
@@ -249,15 +245,17 @@ router.post('/atacar', async (req, res) => {
     // Actualizar vida del enemigo en la base de datos (MongoDB)
     enf.VidaPersonaje1_2 = Math.max(0, enf.VidaPersonaje1_2 - vidaRestada);
     await enfrentamientoRepository.updateVidaPersonaje1_2(enf.id, enf.VidaPersonaje1_2);
-    // Guardar acción en MongoDB
+    // Calcular el turno por usuario
+    const accionesUsuario = acciones.filter(a => a.username === username);
     const nuevaAccion = {
       ID_Equipo2: enf.ID_Equipo2,
       AccionRound2: req.body.AccionRound2,
       DañoRealizadoRound2: Math.round(danoConPoder),
       VidaRestadaEnemigoRound2: vidaRestada,
-      jugador: 2
+      jugador: 2,
+      TurnoUsuarioRound2: accionesUsuario.length + 1
     };
-    await accionRound2Repository.addAccion(nuevaAccion);
+    await accionRound2Repository.addAccionUsuario(nuevaAccion, username);
     // Si la vida del enemigo llegó a 0, registrar resultado y mostrar mensajes de fin de round SOLO para el ganador
     if (enf.VidaPersonaje1_2 === 0) {
       // Aquí podrías registrar el ganador en la colección de peleas si lo deseas
@@ -276,18 +274,19 @@ router.post('/atacar', async (req, res) => {
  *     AccionRound1:
  *       type: object
  *       properties:
- *         TurnoRound1:
+ *         ID_Equipo2:
  *           type: integer
- *         ID_Equipo1:
- *           type: integer
- *         AccionRound1:
+ *         AccionRound2:
  *           type: string
- *         DañoRealizadoRound1:
+ *         DañoRealizadoRound2:
  *           type: number
- *         VidaRestadaEnemigoRound1:
+ *         VidaRestadaEnemigoRound2:
  *           type: number
  *         jugador:
  *           type: integer
+ *         TurnoUsuarioRound2:
+ *           type: integer
+ *           description: Número de turno realizado por el usuario en el round 2
  */
 
 export default router;
