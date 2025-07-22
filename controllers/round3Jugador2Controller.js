@@ -48,7 +48,11 @@ async function puedeUsarRound3() {
  */
 router.get('/estados-vida', async (req, res) => {
   try {
-    const enf = await obtenerEnfrentamientoActivo();
+      const username_estado = req.user?.username;
+      if (!username_estado) return res.status(401).json({ error: 'No autenticado' });
+    // Obtener enfrentamiento activo del usuario
+      const enfrentamientos = await enfrentamientoRepository.getEnfrentamientosByUsername(username_estado);
+    const enf = enfrentamientos[0];
     // Registro automático de resultado si la vida llega a 0 en round 3
     if (enf.VidaPersonaje1_3 === 0 || enf.VidaPersonaje2_3 === 0) {
       let round3_j1, round3_j2, ganadorFinal, perdedorFinal;
@@ -109,13 +113,16 @@ router.get('/estados-vida', async (req, res) => {
  */
 router.get('/acciones', async (req, res) => {
   try {
-    const enf = await obtenerEnfrentamientoActivo();
-    // Obtener acciones de ambos equipos (como en Round 1 y 2)
-    const accionesEquipo1 = await accionRound3Repository.getByEquipoYJugador(enf.ID_Equipo1);
-    const accionesEquipo2 = await accionRound3Repository.getByEquipoYJugador(enf.ID_Equipo2);
+    const username_acciones = req.user?.username;
+    if (!username_acciones) return res.status(401).json({ error: 'No autenticado' });
+    const enfrentamientos = await enfrentamientoRepository.getEnfrentamientosByUsername(username_acciones);
+    const enf = enfrentamientos[0];
+    if (!enf) return res.status(400).json({ error: 'No hay enfrentamiento activo para el usuario.' });
+    // Obtener todas las acciones del usuario autenticado en el round 3 (por ambos equipos)
+    const accionesEquipo1 = await accionRound3Repository.getByEquipoYJugadorUsername(enf.ID_Equipo1, 1, username_acciones);
+    const accionesEquipo2 = await accionRound3Repository.getByEquipoYJugadorUsername(enf.ID_Equipo2, 2, username_acciones);
     const acciones = [...accionesEquipo1, ...accionesEquipo2];
-    // Ordenar por turno si es necesario
-    acciones.sort((a, b) => (a.TurnoRound3 || 0) - (b.TurnoRound3 || 0));
+    acciones.sort((a, b) => (a.TurnoUsuarioRound3 || 0) - (b.TurnoUsuarioRound3 || 0));
     let contador = 1;
     const accionesTodos = acciones.map(a => ({ ...a, ID: contador++ }));
     res.json(accionesTodos);
@@ -159,10 +166,13 @@ router.post('/atacar', async (req, res) => {
     if (!['Golpear', 'Usar habilidad'].includes(AccionRound3)) {
       return res.status(400).json({ error: 'Acción no válida, solo se aceptan Golpear y Usar habilidad.' });
     }
-    // Cargar datos
-    const enf = await obtenerEnfrentamientoActivo();
+    // Cargar datos del usuario
+    const username_atacar = req.user?.username;
+    if (!username_atacar) return res.status(401).json({ error: 'No autenticado' });
+    const enfrentamientos = await enfrentamientoRepository.getEnfrentamientosByUsername(username_atacar);
+    const enf = enfrentamientos[0];
     if (!enf) {
-      return res.status(400).json({ error: 'No hay enfrentamiento activo en la base de datos.' });
+      return res.status(400).json({ error: 'No hay enfrentamiento activo para el usuario en la base de datos.' });
     }
     // Validar campos requeridos
     const requiredFields = ['ID_Equipo2','AliasPersonaje2_3','AliasPersonaje1_3','VidaPersonaje2_3','VidaPersonaje1_3','id'];
@@ -171,17 +181,19 @@ router.post('/atacar', async (req, res) => {
         return res.status(400).json({ error: `El enfrentamiento activo no tiene el campo requerido: ${field}` });
       }
     }
-    // Obtener todas las acciones de ambos equipos y ordenarlas por turno o fecha
+    // Obtener todas las acciones de ambos equipos y ordenarlas por turno de usuario o fecha
     const accionesEquipo1 = await accionRound3Repository.getByEquipoYJugador(enf.ID_Equipo1);
     const accionesEquipo2 = await accionRound3Repository.getByEquipoYJugador(enf.ID_Equipo2);
     const acciones = [...accionesEquipo1, ...accionesEquipo2];
-    acciones.sort((a, b) => (a.TurnoRound3 || a.turno || a._id?.toString().localeCompare(b._id?.toString())));
-    // Alternancia de turnos global
-    if (acciones.length > 0) {
-      const ultimaAccion = acciones[acciones.length - 1];
-      if (ultimaAccion.ID_Equipo3 === enf.ID_Equipo2) {
-        return res.status(400).json({ error: 'No es tu turno, espera a que el primer jugador realice su turno.' });
+    acciones.sort((a, b) => {
+      if (a.TurnoUsuarioRound3 && b.TurnoUsuarioRound3) {
+        return a.TurnoUsuarioRound3 - b.TurnoUsuarioRound3;
       }
+      return a._id?.toString().localeCompare(b._id?.toString());
+    });
+    // Alternancia de turnos por jugador: solo bloquea si el último turno fue del jugador 2
+    if (acciones.length > 0 && acciones[acciones.length - 1].jugador === 2) {
+      return res.status(400).json({ error: 'No es tu turno, espera a que el primer jugador realice su turno.' });
     }
     // Buscar personajes
     const alias2 = enf.AliasPersonaje2_3;
@@ -244,19 +256,20 @@ router.post('/atacar', async (req, res) => {
     // Actualizar vida del enemigo en la base de datos (MongoDB)
     enf.VidaPersonaje1_3 = Math.max(0, enf.VidaPersonaje1_3 - vidaRestada);
     await enfrentamientoRepository.updateVidaPersonaje1_3(enf.id, enf.VidaPersonaje1_3);
-    // Guardar acción en MongoDB
+    // Calcular el turno por usuario
     const nuevaAccion = {
-      TurnoRound3: acciones.filter(a => a.jugador === 2).length + 1,
+      TurnoRound3: acciones.filter(a => a.jugador === 2 && a.username === username_atacar).length + 1,
+      TurnoUsuarioRound3: acciones.filter(a => a.username === username_atacar).length + 1,
       ID_Equipo3: enf.ID_Equipo2,
       AccionRound3,
       DañoRealizadoRound3: Math.round(danoConPoder),
       VidaRestadaEnemigoRound3: vidaRestada,
-      jugador: 2
+      jugador: 2,
+      username: username_atacar
     };
     await accionRound3Repository.saveAccion(nuevaAccion);
-    // Mensaje de fin de round
-    if (enf.VidaPersonaje1_3 === 0) {
-      // Registrar resultado en Peleas (opcional)
+    // Solo mostrar mensaje de fin de round si la vida llegó a 0 tras el ataque
+    if (enf.VidaPersonaje1_3 === 0 && vidaRestada > 0) {
       try {
         const peleasService = await import('../services/peleasService.js');
         await peleasService.default.registrarRound({

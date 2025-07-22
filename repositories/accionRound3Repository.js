@@ -1,3 +1,9 @@
+// Guardar una nueva acción asociada al usuario
+async function saveAccionUsuario(accionData, username) {
+    accionData.username = username;
+    const accion = new AccionRound3(accionData);
+    return await accion.save();
+}
 // Eliminar todas las acciones asociadas a un ID_Equipo3 en la colección
 async function deleteByEquipoId(equipoId) {
     try {
@@ -41,9 +47,27 @@ async function saveAccion(accionData) {
     }
 }
 
+
+// Obtener acciones por equipo, jugador y usuario
+async function getByEquipoYJugadorUsername(ID_Equipo3, jugador, username) {
+    try {
+        return await AccionRound3.find({
+            ID_Equipo3,
+            jugador,
+            username: { $regex: new RegExp('^' + username + '$', 'i') }
+        }).lean();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+// Agregar el método al export default
 export default {
     getAcciones,
     getByEquipoYJugador,
+    getByEquipoYJugadorUsername,
     saveAccion,
+    saveAccionUsuario,
     deleteByEquipoId
 };

@@ -161,9 +161,14 @@ router.post('/atacar', async (req, res) => {
     }
     const username = req.user?.username;
     if (!username) return res.status(401).json({ error: 'No autenticado' });
-    const enf = await obtenerEnfrentamientoActivo();
-    // Obtener todas las acciones del equipo desde MongoDB
-    const acciones = await accionRound2Repository.getByEquipoYJugador(enf.ID_Equipo2);
+    // Obtener el enfrentamiento solo del usuario actual
+    const enfArr = await enfrentamientoRepository.getEnfrentamientosByUsername(username);
+    const enf = enfArr[0];
+    if (!enf) {
+      return res.status(404).json({ error: 'No se encontró enfrentamiento para el usuario.' });
+    }
+    // Obtener solo las acciones del usuario actual
+    const acciones = await accionRound2Repository.getAllByUsername(username);
     // Si el jugador 2 ya perdió, mostrar mensaje YOU LOSE
     if (enf.VidaPersonaje2_2 === 0) {
       return res.status(400).json({ mensaje: 'YOU LOSE', detalle: 'El Round 2 ha concluido, Para seguir peleando valla al Round 3' });

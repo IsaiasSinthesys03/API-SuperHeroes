@@ -6,7 +6,10 @@ const AccionRound3Schema = new mongoose.Schema({
     AccionRound3: { type: String, required: true },
     DañoRealizadoRound3: { type: Number, required: true },
     VidaRestadaEnemigoRound3: { type: Number, required: true },
-    jugador: { type: Number, required: true }
+    jugador: { type: Number, required: true },
+    TurnoUsuarioRound3: { type: Number, required: true },
+    TurnoRound3: { type: Number, required: true },
+    username: { type: String, required: true }
 });
 
 export default mongoose.model('AccionRound3', AccionRound3Schema);
