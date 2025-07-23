@@ -78,9 +78,9 @@ async function deleteEnfrentamiento(id, username) {
     await accionRound3Repository.deleteByEquipoId(ID_Equipo1);
     await accionRound3Repository.deleteByEquipoId(ID_Equipo2);
 
-    // Eliminar todo el contenido de la colección peleas en MongoDB
-    const peleasRepository = (await import('../repositories/peleasRepository.js')).default;
-    await peleasRepository.deleteAllPeleas();
+    // Eliminar solo las peleas asociadas a este enfrentamiento y usuario
+    const peleaRepository = (await import('../repositories/peleaRepository.js')).default;
+    await peleaRepository.deletePeleaByIdAndUsername(parseInt(id), username);
     return { message: 'Enfrentamiento, acciones asociadas y resultados eliminados' };
 }
 

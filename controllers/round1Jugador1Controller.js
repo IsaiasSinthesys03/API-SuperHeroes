@@ -58,22 +58,23 @@ router.get('/estados-vida', async (req, res) => {
     const enf = enfrentamientos[0];
     // Registro automático de resultado si la vida llega a 0
     if (enf.VidaPersonaje1_1 === 0 || enf.VidaPersonaje2_1 === 0) {
-      let ganadorFinal, perdedorFinal, round1_j1, round1_j2;
-      if (enf.VidaPersonaje1_1 === 0) {
-        ganadorFinal = 'Jugador 2';
-        perdedorFinal = 'Jugador 1';
-        round1_j1 = 'You Lose';
-        round1_j2 = 'You Win';
-      } else {
-        ganadorFinal = 'Jugador 1';
-        perdedorFinal = 'Jugador 2';
-        round1_j1 = 'You Win';
-        round1_j2 = 'You Lose';
-      }
       const peleasService = await import('../services/peleasService.js');
+      const { calcularGanador } = await import('../utils/ganadorPelea.js');
+      // Determinar ganador del round 1
+      let round1Winner = enf.VidaPersonaje1_1 === 0 ? 'Jugador 2' : 'Jugador 1';
+      // Recuperar pelea actual
+      const peleaActual = await peleasService.default.getPeleaByIdAndUsername(enf.id, username);
+      let round2 = peleaActual?.Round2 || null;
+      let round3 = peleaActual?.Round3 || null;
+      // Calcular ganador general
+      let ganador = calcularGanador(round1Winner, round2, round3);
       await peleasService.default.registrarRound({
         id: enf.id,
-        round1: (round1_j1 === 'You Win') ? 'Jugador 1' : 'Jugador 2'
+        Round1: round1Winner,
+        Round2: round2,
+        Round3: round3,
+        Ganador: ganador,
+        username
       });
     }
     // ...existing code...
@@ -254,9 +255,19 @@ router.post('/atacar', async (req, res) => {
     // RESTRICCIÓN: Si la vida del enemigo llegó a 0, registrar resultado y mostrar mensajes de fin de round SOLO para el ganador
     if (enf.VidaPersonaje2_1 === 0) {
       const peleasService = await import('../services/peleasService.js');
+      const { calcularGanador } = await import('../utils/ganadorPelea.js');
+      // Recuperar pelea actual
+      const peleaActual = await peleasService.default.getPeleaByIdAndUsername(enf.id, username);
+      let round2 = peleaActual?.Round2 || null;
+      let round3 = peleaActual?.Round3 || null;
+      let ganador = calcularGanador('Jugador 1', round2, round3);
       await peleasService.default.registrarRound({
         id: enf.id,
-        round1: 'Jugador 1'
+        Round1: 'Jugador 1',
+        Round2: round2,
+        Round3: round3,
+        Ganador: ganador,
+        username
       });
       return res.status(201).json({ mensaje: 'YOU WIN', detalle: 'El Round 1 a concluido, Para seguir peleando valla al Round 2', accion: nuevaAccion });
     }

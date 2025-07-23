@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 
 const peleaSchema = new mongoose.Schema({
@@ -6,7 +5,7 @@ const peleaSchema = new mongoose.Schema({
   Round1: { type: String, enum: ['Jugador 1', 'Jugador 2', null], default: null },
   Round2: { type: String, enum: ['Jugador 1', 'Jugador 2', null], default: null },
   Round3: { type: String, enum: ['Jugador 1', 'Jugador 2', null], default: null },
-  Ganador: { type: String, enum: ['Jugador 1', 'Jugador 2', null], default: null },
+  Ganador: { type: String, enum: ['Jugador 1', 'Jugador 2', 'Empate', null], default: null },
   username: { type: String, required: true }
 }, {
   toJSON: {

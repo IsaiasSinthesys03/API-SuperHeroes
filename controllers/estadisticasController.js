@@ -22,22 +22,24 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
   try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: 'No autenticado' });
     const data = await peleasRepository.getAllPeleas();
-    // Solo mostrar id, round1, round2, round3 y Ganador
-    const simple = data.map(p => {
-      let j1 = 0, j2 = 0;
-      if (p.round1 === 'Jugador 1') j1++;
-      if (p.round1 === 'Jugador 2') j2++;
-      if (p.round2 === 'Jugador 1') j1++;
-      if (p.round2 === 'Jugador 2') j2++;
-      if (p.round3 === 'Jugador 1') j1++;
-      if (p.round3 === 'Jugador 2') j2++;
-      let Ganador = null;
-      if (j1 > j2) Ganador = 'Jugador 1';
-      else if (j2 > j1) Ganador = 'Jugador 2';
-      else if (j1 === j2 && (j1 > 0 || j2 > 0)) Ganador = 'Empate';
-      return { id: p.id, round1: p.round1, round2: p.round2, round3: p.round3, Ganador };
-    });
+    // Filtrar solo las peleas del usuario autenticado
+    const userPeleas = data.filter(p => p.username === username);
+    // Verificar si hay al menos una pelea con los 3 rounds completados y un ganador
+    const peleaFinalizada = userPeleas.find(p => p.Round1 && p.Round2 && p.Round3 && p.Ganador);
+    if (!peleaFinalizada) {
+      return res.status(403).json({ error: 'Error, No se ha concluido el enfrentamiento' });
+    }
+    // Mostrar solo las peleas finalizadas
+    const simple = userPeleas.filter(p => p.Round1 && p.Round2 && p.Round3 && p.Ganador).map(p => ({
+      id: p.id,
+      Round1: p.Round1,
+      Round2: p.Round2,
+      Round3: p.Round3,
+      Ganador: p.Ganador
+    }));
     res.json(simple);
   } catch (error) {
     res.status(500).json({ error: error.message });

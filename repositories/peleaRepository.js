@@ -1,13 +1,19 @@
 import Pelea from '../models/peleaModel.js';
 
 export default {
+  async deletePeleaByIdAndUsername(id, username) {
+    return await Pelea.deleteMany({ id, username });
+  },
+  async getPeleaByIdAndUsername(id, username) {
+    return await Pelea.findOne({ id, username });
+  },
   async getPeleaById(id) {
     return await Pelea.findOne({ id });
   },
-  async upsertPelea({ id, round1, round2, round3, GanadorRound1 }) {
+  async upsertPelea({ id, Round1, Round2, Round3, Ganador, username }) {
     return await Pelea.findOneAndUpdate(
-      { id },
-      { $set: { round1, round2, round3, GanadorRound1 } },
+      { id, username },
+      { $set: { Round1, Round2, Round3, Ganador, username } },
       { upsert: true, new: true }
     );
   },

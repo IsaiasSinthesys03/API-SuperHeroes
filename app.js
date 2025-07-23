@@ -6,7 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 
 import heroController from './controllers/heroController.js';
 import villainController from './controllers/villainController.js';
-import battleController from './controllers/battleController.js';
+// import battleController from './controllers/battleController.js';
 import equipoController from './controllers/equipoController.js';
 import enfrentamientoController from './controllers/enfrentamientoController.js';
 import round1Jugador1Controller from './controllers/round1Jugador1Controller.js';
@@ -59,7 +59,7 @@ const swaggerSpec = swaggerJSDoc(options);
 
 app.use(express.json());
 app.use('/api', authController); // Endpoints de registro y login públicos
-app.use('/api/battles', authMiddleware, battleController);
+// app.use('/api/battles', authMiddleware, battleController);
 app.use('/api/enfrentamientos', authMiddleware, enfrentamientoController);
 app.use('/api/equipos', authMiddleware, equipoController);
 app.use('/api/estadisticas', authMiddleware, estadisticasController);

@@ -54,33 +54,29 @@ router.get('/estados-vida', async (req, res) => {
     const enfrentamientos = await enfrentamientoRepository.getEnfrentamientosByUsername(username);
     const enf = enfrentamientos[0];
     if (!enf) return res.status(404).json({ error: 'No se encontró enfrentamiento para el usuario' });
+    // RESTRICCIÓN: solo si hay ganador en round 2
+    if (!(enf.VidaPersonaje1_2 === 0 || enf.VidaPersonaje2_2 === 0)) {
+      return res.status(403).json({ error: 'Error, No se puede jugar este round hasta terminar el round anterior' });
+    }
     // Registro automático de resultado si la vida llega a 0 en round 3
     if (enf.VidaPersonaje1_3 === 0 || enf.VidaPersonaje2_3 === 0) {
-      let round3_j1, round3_j2, ganadorFinal, perdedorFinal;
-      if (enf.VidaPersonaje1_3 === 0) {
-        round3_j1 = 'You Lose';
-        round3_j2 = 'You Win';
-        ganadorFinal = 'Jugador 2';
-        perdedorFinal = 'Jugador 1';
-      } else {
-        round3_j1 = 'You Win';
-        round3_j2 = 'You Lose';
-        ganadorFinal = 'Jugador 1';
-        perdedorFinal = 'Jugador 2';
-      }
       const peleasService = await import('../services/peleasService.js');
+      const { calcularGanador } = await import('../utils/ganadorPelea.js');
+      // Determinar ganador del round 3
+      let round3Winner = enf.VidaPersonaje1_3 === 0 ? 'Jugador 2' : 'Jugador 1';
+      // Recuperar pelea actual
+      const peleaActual = await peleasService.default.getPeleaByIdAndUsername(enf.id, username);
+      let round1 = peleaActual?.Round1 || null;
+      let round2 = peleaActual?.Round2 || null;
+      // Calcular ganador general
+      let ganador = calcularGanador(round1, round2, round3Winner);
       await peleasService.default.registrarRound({
         id: enf.id,
-        aliasPersonaje1_1: enf.AliasPersonaje1_1,
-        round1_j1: null,
-        aliasPersonaje2_1: enf.AliasPersonaje2_1,
-        round1_j2: null,
-        round2_j1: null,
-        round2_j2: null,
-        round3_j1,
-        round3_j2,
-        ganadorFinal,
-        perdedorFinal
+        Round1: round1,
+        Round2: round2,
+        Round3: round3Winner,
+        Ganador: ganador,
+        username
       });
     }
     res.json({
@@ -278,9 +274,19 @@ router.post('/atacar', async (req, res) => {
   if (enf.VidaPersonaje2_3 === 0 && vidaRestada > 0) {
     try {
       const peleasService = await import('../services/peleasService.js');
+      const { calcularGanador } = await import('../utils/ganadorPelea.js');
+      // Recuperar pelea actual
+      const peleaActual = await peleasService.default.getPeleaByIdAndUsername(enf.id, username);
+      let round1 = peleaActual?.Round1 || null;
+      let round2 = peleaActual?.Round2 || null;
+      let ganador = calcularGanador(round1, round2, 'Jugador 1');
       await peleasService.default.registrarRound({
         id: enf.id,
-        round3: "Jugador 1"
+        Round1: round1,
+        Round2: round2,
+        Round3: 'Jugador 1',
+        Ganador: ganador,
+        username
       });
     } catch (err) {
       // Error de registro, pero no bloquea respuesta

@@ -1,10 +1,16 @@
 
+
 import peleaRepository from '../repositories/peleaRepository.js';
 
-async function registrarRound({ id, round1, round2, round3, GanadorRound1 }) {
-  await peleaRepository.upsertPelea({ id, round1, round2, round3, GanadorRound1 });
+async function registrarRound({ id, Round1, Round2, Round3, Ganador, username }) {
+  await peleaRepository.upsertPelea({ id, Round1, Round2, Round3, Ganador, username });
+}
+
+async function getPeleaByIdAndUsername(id, username) {
+  return await peleaRepository.getPeleaByIdAndUsername(id, username);
 }
 
 export default {
-  registrarRound
+  registrarRound,
+  getPeleaByIdAndUsername
 };
