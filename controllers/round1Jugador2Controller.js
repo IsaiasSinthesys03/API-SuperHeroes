@@ -281,7 +281,7 @@ router.post('/atacar', async (req, res) => {
  *     AccionRound1:
  *       type: object
  *       properties:
-    // ...eliminado del esquema Swagger...
+
  *         ID_Equipo1:
  *           type: integer
  *         AccionRound1:
