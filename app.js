@@ -1,7 +1,4 @@
-// Ruta de bienvenida para la raíz
-app.get('/', (req, res) => {
-  res.send('API Superhéroes funcionando. Visita /api-docs para la documentación Swagger.');
-});
+// ...existing code...
 import './db.js';
 import express from 'express';
 
