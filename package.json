@@ -21,6 +21,7 @@
   "homepage": "https://github.com/IsaiasSinthesys03/API-SuperHeroes#readme",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",

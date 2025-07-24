@@ -1,6 +1,8 @@
 // ...existing code...
+
 import './db.js';
 import express from 'express';
+import cors from 'cors';
 
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
@@ -21,6 +23,7 @@ import authController from './controllers/authController.js';
 import authMiddleware from './middlewares/authMiddleware.js';
 
 const app = express();
+app.use(cors());
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -31,8 +34,13 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:3001/api',
+      url: 'https://api-superheroes-2.onrender.com/api',
+      description: 'Producción (Render)'
     },
+    {
+      url: 'http://localhost:3001/api',
+      description: 'Desarrollo local'
+    }
   ],
   components: {
     securitySchemes: {
