@@ -74,10 +74,11 @@ app.use('/api/round3jugador1', authMiddleware, round3Jugador1Controller);
 app.use('/api/round3jugador2', authMiddleware, round3Jugador2Controller);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Ejemplo: proteger todos los endpoints de combate (descomenta para activar protección global)
-// app.use('/api/round1', authMiddleware);
-// app.use('/api/round2', authMiddleware);
-// app.use('/api/round3', authMiddleware);
+
+// Redirigir la raíz '/' a la documentación Swagger
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
