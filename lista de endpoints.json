@@ -1,0 +1,57 @@
+{
+  "auth": [
+    {"method": "POST", "endpoint": "/auth/register", "description": "Registro de usuario", "requestBody": {"username": "string", "password": "string"}},
+    {"method": "POST", "endpoint": "/auth/login", "description": "Login de usuario", "requestBody": {"username": "string", "password": "string"}}
+  ],
+  "villains": [
+    {"method": "GET", "endpoint": "/villains", "description": "Obtener todos los villanos", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/villains/username/:username", "description": "Obtener villanos por username", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/villains/city/:city/username/:username", "description": "Obtener villanos por ciudad y username", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/villains/alias/:alias", "description": "Obtener villano por alias", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/villains", "description": "Crear un villano", "requiresAuth": true, "requestBody": {"name": "string", "alias": "string", "city": "string", "team": "string", "golpeBasico1": "string", "golpeBasico2": "string", "golpeBasico3": "string", "danoCrit": 0, "probCrit": 0, "nombreHabilidad": "string", "danoHabilidad": 0, "poder": 0, "defensa": 0, "vida": 100, "username": "string"}},
+    {"method": "PUT", "endpoint": "/villains/:id", "description": "Actualizar un villano", "requiresAuth": true, "requestBody": {"name": "string", "alias": "string", "city": "string", "team": "string", "golpeBasico1": "string", "golpeBasico2": "string", "golpeBasico3": "string", "danoCrit": 0, "probCrit": 0, "nombreHabilidad": "string", "danoHabilidad": 0, "poder": 0, "defensa": 0, "vida": 100, "username": "string"}},
+    {"method": "DELETE", "endpoint": "/villains/:id", "description": "Eliminar un villano", "requiresAuth": true}
+  ],
+  "heroes": [
+    {"method": "GET", "endpoint": "/heroes", "description": "Obtener todos los héroes", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/heroes/username/:username", "description": "Obtener héroes por username", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/heroes/alias/:alias", "description": "Obtener héroe por alias", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/heroes", "description": "Crear un héroe", "requiresAuth": true, "requestBody": {"name": "string", "alias": "string", "city": "string", "team": "string", "golpeBasico1": "string", "golpeBasico2": "string", "golpeBasico3": "string", "danoCrit": 0, "probCrit": 0, "nombreHabilidad": "string", "danoHabilidad": 0, "poder": 0, "defensa": 0, "vida": 100, "username": "string"}},
+    {"method": "PUT", "endpoint": "/heroes/:id", "description": "Actualizar un héroe", "requiresAuth": true, "requestBody": {"name": "string", "alias": "string", "city": "string", "team": "string", "golpeBasico1": "string", "golpeBasico2": "string", "golpeBasico3": "string", "danoCrit": 0, "probCrit": 0, "nombreHabilidad": "string", "danoHabilidad": 0, "poder": 0, "defensa": 0, "vida": 100, "username": "string"}},
+    {"method": "DELETE", "endpoint": "/heroes/:id", "description": "Eliminar un héroe", "requiresAuth": true}
+  ],
+  "equipos": [
+    {"method": "GET", "endpoint": "/equipos", "description": "Obtener todos los equipos", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/equipos", "description": "Crear un equipo", "requiresAuth": true, "requestBody": {"Heroe_O_Villano1": "string", "AliasPersonaje1": "string", "Heroe_O_Villano2": "string", "AliasPersonaje2": "string", "Heroe_O_Villano3": "string", "AliasPersonaje3": "string", "username": "string"}},
+    {"method": "DELETE", "endpoint": "/equipos/:id", "description": "Eliminar un equipo", "requiresAuth": true}
+  ],
+  "enfrentamientos": [
+    {"method": "GET", "endpoint": "/enfrentamientos", "description": "Obtener todos los enfrentamientos", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/enfrentamientos", "description": "Crear un enfrentamiento", "requiresAuth": true, "requestBody": {"ID_Equipo1": 0, "AliasPersonaje1_1": "string", "VidaPersonaje1_1": 100, "AliasPersonaje1_2": "string", "VidaPersonaje1_2": 100, "AliasPersonaje1_3": "string", "VidaPersonaje1_3": 100, "ID_Equipo2": 0, "AliasPersonaje2_1": "string", "VidaPersonaje2_1": 100, "AliasPersonaje2_2": "string", "VidaPersonaje2_2": 100, "AliasPersonaje2_3": "string", "VidaPersonaje2_3": 100, "username": "string"}},
+    {"method": "DELETE", "endpoint": "/enfrentamientos/:id", "description": "Eliminar un enfrentamiento", "requiresAuth": true}
+  ],
+  "peleas": [
+    {"method": "GET", "endpoint": "/peleas", "description": "Obtener todas las peleas", "requiresAuth": true},
+    {"method": "DELETE", "endpoint": "/peleas", "description": "Eliminar todas las peleas", "requiresAuth": true}
+  ],
+  "estadisticas": [
+    {"method": "GET", "endpoint": "/estadisticas", "description": "Obtener estadísticas de peleas", "requiresAuth": true}
+  ],
+  "rounds": [
+    {"method": "GET", "endpoint": "/round1/estados-vida", "description": "Estados de vida round 1 jugador 1", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/round1/acciones", "description": "Acciones round 1 jugador 1", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/round1/acciones", "description": "Registrar acción round 1 jugador 1", "requiresAuth": true, "requestBody": {"ID_Equipo1": 0, "AccionRound1": "string", "DañoRealizadoRound1": 0, "VidaRestadaEnemigoRound1": 0, "jugador": 1, "TurnoUsuarioRound1": 1, "TurnoRound1": 1, "username": "string"}},
+    {"method": "GET", "endpoint": "/round1jugador2/estados-vida", "description": "Estados de vida round 1 jugador 2", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/round1jugador2/acciones", "description": "Acciones round 1 jugador 2", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/round1jugador2/acciones", "description": "Registrar acción round 1 jugador 2", "requiresAuth": true, "requestBody": {"ID_Equipo2": 0, "AccionRound1": "string", "DañoRealizadoRound1": 0, "VidaRestadaEnemigoRound1": 0, "jugador": 2, "TurnoUsuarioRound1": 1, "TurnoRound1": 1, "username": "string"}},
+    {"method": "GET", "endpoint": "/round2jugador1/estados-vida", "description": "Estados de vida round 2 jugador 1", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/round2jugador1/acciones", "description": "Acciones round 2 jugador 1", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/round2jugador1/acciones", "description": "Registrar acción round 2 jugador 1", "requiresAuth": true, "requestBody": {"ID_Equipo1": 0, "AccionRound2": "string", "DañoRealizadoRound2": 0, "VidaRestadaEnemigoRound2": 0, "jugador": 1, "TurnoUsuarioRound2": 1, "TurnoRound2": 1, "username": "string"}},
+    {"method": "GET", "endpoint": "/round2jugador2/estados-vida", "description": "Estados de vida round 2 jugador 2", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/round2jugador2/acciones", "description": "Acciones round 2 jugador 2", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/round2jugador2/acciones", "description": "Registrar acción round 2 jugador 2", "requiresAuth": true, "requestBody": {"ID_Equipo2": 0, "AccionRound2": "string", "DañoRealizadoRound2": 0, "VidaRestadaEnemigoRound2": 0, "jugador": 2, "TurnoUsuarioRound2": 1, "TurnoRound2": 1, "username": "string"}},
+    {"method": "GET", "endpoint": "/round3jugador1/estados-vida", "description": "Estados de vida round 3 jugador 1", "requiresAuth": true},
+    {"method": "GET", "endpoint": "/round3jugador1/acciones", "description": "Acciones round 3 jugador 1", "requiresAuth": true},
+    {"method": "POST", "endpoint": "/round3jugador1/acciones", "description": "Registrar acción round 3 jugador 1", "requiresAuth": true, "requestBody": {"ID_Equipo3": 0, "AccionRound3": "string", "DañoRealizadoRound3": 0, "VidaRestadaEnemigoRound3": 0, "jugador": 1, "TurnoUsuarioRound3": 1, "TurnoRound3": 1, "username": "string"}}
+  ]
+}
