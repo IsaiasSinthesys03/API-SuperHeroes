@@ -179,6 +179,10 @@ router.post('/atacar', async (req, res) => {
     }
     // Obtener solo las acciones del usuario actual
     const acciones = await accionRound2Repository.getAllByUsername(username);
+    
+    // Obtener acciones SOLO del jugador 1 para validación de habilidad
+    const accionesJugador1 = acciones.filter(a => a.jugador === 1 && a.ID_Equipo2 === enf.ID_Equipo2);
+    
     // Si el jugador 1 ya perdió, mostrar mensaje YOU LOSE
     if (enf.VidaPersonaje1_2 === 0) {
       return res.status(400).json({ mensaje: 'YOU LOSE', detalle: 'El Round 2 ha concluido, Para seguir peleando valla al Round 3' });
@@ -207,17 +211,17 @@ router.post('/atacar', async (req, res) => {
       return res.status(400).json({ error: `No se encontró el personaje enemigo con alias '${alias2}' en la base de datos.` });
     }
     // Lógica de golpes y habilidad (idéntica a round 1 pero usando personaje1_2 y personaje2_2)
-    // Restricción de habilidad: solo cada 3 golpes básicos
+    // Restricción de habilidad: solo cada 3 golpes básicos del jugador 1
     let lastHabilidadIndex = -1;
-    for (let i = acciones.length - 1; i >= 0; i--) {
-      if (acciones[i].ID_Equipo2 === enf.ID_Equipo2 && acciones[i].jugador === 1 && acciones[i].AccionRound2 === 'Usar habilidad') {
+    for (let i = accionesJugador1.length - 1; i >= 0; i--) {
+      if (accionesJugador1[i].AccionRound2 === 'Usar habilidad') {
         lastHabilidadIndex = i;
         break;
       }
     }
     let golpesDesdeUltimaHabilidad = 0;
-    for (let i = acciones.length - 1; i > lastHabilidadIndex; i--) {
-      if (acciones[i].ID_Equipo2 === enf.ID_Equipo2 && acciones[i].jugador === 1 && acciones[i].AccionRound2 === 'Golpear') {
+    for (let i = accionesJugador1.length - 1; i > lastHabilidadIndex; i--) {
+      if (accionesJugador1[i].AccionRound2 === 'Golpear') {
         golpesDesdeUltimaHabilidad++;
       }
     }
@@ -227,7 +231,7 @@ router.post('/atacar', async (req, res) => {
       }
     }
     // Determinar daño base
-    let golpeIndex = acciones.filter(a => a.ID_Equipo2 === enf.ID_Equipo2 && a.jugador === 1 && a.AccionRound2 === 'Golpear').length % 3;
+    let golpeIndex = accionesJugador1.filter(a => a.AccionRound2 === 'Golpear').length % 3;
     let danoBase = 0;
     let mensaje = '';
     if (req.body.AccionRound2 === 'Golpear') {

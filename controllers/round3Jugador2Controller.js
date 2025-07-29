@@ -187,6 +187,10 @@ router.post('/atacar', async (req, res) => {
       }
       return a._id?.toString().localeCompare(b._id?.toString());
     });
+    
+    // Obtener acciones SOLO del jugador 2 para validación de habilidad
+    const accionesJugador2 = acciones.filter(a => a.ID_Equipo3 === enf.ID_Equipo2 && a.jugador === 2);
+    
     // Alternancia de turnos por jugador: solo bloquea si el último turno fue del jugador 2
     if (acciones.length > 0 && acciones[acciones.length - 1].jugador === 2) {
       return res.status(400).json({ error: 'No es tu turno, espera a que el primer jugador realice su turno.' });
@@ -202,25 +206,25 @@ router.post('/atacar', async (req, res) => {
     if (!personaje1) {
       return res.status(400).json({ error: `No se encontró el personaje enemigo con alias '${alias1}' en la base de datos.` });
     }
-    // Restricción de habilidad
+    // Restricción de habilidad - SOLO para el jugador 2
     let lastHabilidadIndex = -1;
-    for (let i = acciones.length - 1; i >= 0; i--) {
-      if (acciones[i].ID_Equipo3 === enf.ID_Equipo2 && acciones[i].AccionRound3 === 'Usar habilidad') {
+    for (let i = accionesJugador2.length - 1; i >= 0; i--) {
+      if (accionesJugador2[i].AccionRound3 === 'Usar habilidad') {
         lastHabilidadIndex = i;
         break;
       }
     }
     let golpesDesdeUltimaHabilidad = 0;
-    for (let i = acciones.length - 1; i > lastHabilidadIndex; i--) {
-      if (acciones[i].ID_Equipo3 === enf.ID_Equipo2 && acciones[i].AccionRound3 === 'Golpear') {
+    for (let i = accionesJugador2.length - 1; i > lastHabilidadIndex; i--) {
+      if (accionesJugador2[i].AccionRound3 === 'Golpear') {
         golpesDesdeUltimaHabilidad++;
       }
     }
     if (AccionRound3 === 'Usar habilidad' && golpesDesdeUltimaHabilidad < 3) {
       return res.status(400).json({ error: 'No se puede usar habilidad si no se han realizado 3 golpes básicos desde el último uso.' });
     }
-    // Determinar daño
-    let golpeIndex = acciones.filter(a => a.ID_Equipo3 === enf.ID_Equipo2 && a.AccionRound3 === 'Golpear').length % 3;
+    // Determinar daño - SOLO con acciones del jugador 2
+    let golpeIndex = accionesJugador2.filter(a => a.AccionRound3 === 'Golpear').length % 3;
     let danoBase = 0;
     let mensaje = '';
     if (AccionRound3 === 'Golpear') {
