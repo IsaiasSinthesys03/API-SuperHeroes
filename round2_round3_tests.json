@@ -1,0 +1,672 @@
+{
+  "name": "8. Pruebas Round 2",
+  "item": [
+    {
+      "name": "Ver Estados Round 2 - Jugador 1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador1/estados-vida",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador1", "estados-vida"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Estados Round 2 válidos\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('TuPersonaje');",
+              "    pm.expect(jsonData).to.have.property('Tuvida');",
+              "    pm.expect(jsonData).to.have.property('TuEnemigo');",
+              "    pm.expect(jsonData).to.have.property('VidaEnemigo');",
+              "    pm.expect(jsonData.Tuvida).to.eql(100);",
+              "    pm.expect(jsonData.VidaEnemigo).to.eql(100);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 1 Round 2 - Jugador 1 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound2\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador1/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador1", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 2 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound2).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 2 Round 2 - Jugador 2 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound2\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador2/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador2", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 2 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound2).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 3 Round 2 - Jugador 1 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound2\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador1/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador1", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 2 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound2).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 4 Round 2 - Jugador 2 Usar Habilidad",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound2\": \"Usar habilidad\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador2/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador2", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Habilidad Round 2 registrada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound2).to.eql(\"Usar habilidad\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 5 Round 2 - Jugador 1 Usar Habilidad",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound2\": \"Usar habilidad\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador1/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador1", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Habilidad Round 2 registrada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound2).to.eql(\"Usar habilidad\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 6 Round 2 - Jugador 2 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound2\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador2/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador2", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 2 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound2).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+},
+{
+  "name": "9. Pruebas Round 3",
+  "item": [
+    {
+      "name": "Ver Estados Round 3 - Jugador 1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador1/estados-vida",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador1", "estados-vida"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Estados Round 3 válidos\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('TuPersonaje');",
+              "    pm.expect(jsonData).to.have.property('Tuvida');",
+              "    pm.expect(jsonData).to.have.property('TuEnemigo');",
+              "    pm.expect(jsonData).to.have.property('VidaEnemigo');",
+              "    pm.expect(jsonData.Tuvida).to.eql(100);",
+              "    pm.expect(jsonData.VidaEnemigo).to.eql(100);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 1 Round 3 - Jugador 1 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound3\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador1/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador1", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 3 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound3).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 2 Round 3 - Jugador 2 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound3\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador2/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador2", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 3 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound3).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 3 Round 3 - Jugador 1 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound3\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador1/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador1", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 3 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound3).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 4 Round 3 - Jugador 2 Usar Habilidad",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound3\": \"Usar habilidad\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador2/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador2", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Habilidad Round 3 registrada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound3).to.eql(\"Usar habilidad\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 5 Round 3 - Jugador 1 Usar Habilidad",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound3\": \"Usar habilidad\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador1/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador1", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Habilidad Round 3 registrada\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound3).to.eql(\"Usar habilidad\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turno 6 Round 3 - Jugador 2 Golpear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccionRound3\": \"Golpear\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador2/atacar",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador2", "atacar"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Golpe Round 3 registrado\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.accion.AccionRound3).to.eql(\"Golpear\");",
+              "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+},
+{
+  "name": "10. Verificar Resultados Completos",
+  "item": [
+    {
+      "name": "Ver Estados Finales Round 2",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/round2jugador1/estados-vida",
+          "host": ["{{baseUrl}}"],
+          "path": ["round2jugador1", "estados-vida"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Estados Round 2 válidos\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('TuPersonaje');",
+              "    pm.expect(jsonData).to.have.property('Tuvida');",
+              "    pm.expect(jsonData).to.have.property('TuEnemigo');",
+              "    pm.expect(jsonData).to.have.property('VidaEnemigo');",
+              "    console.log('Estados Round 2:', jsonData);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ver Estados Finales Round 3",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/round3jugador1/estados-vida",
+          "host": ["{{baseUrl}}"],
+          "path": ["round3jugador1", "estados-vida"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Estados Round 3 válidos\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('TuPersonaje');",
+              "    pm.expect(jsonData).to.have.property('Tuvida');",
+              "    pm.expect(jsonData).to.have.property('TuEnemigo');",
+              "    pm.expect(jsonData).to.have.property('VidaEnemigo');",
+              "    console.log('Estados Round 3:', jsonData);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ver Estadísticas Finales",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/estadisticas",
+          "host": ["{{baseUrl}}"],
+          "path": ["estadisticas"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Estadísticas válidas\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "    if (jsonData.length > 0) {",
+              "        var pelea = jsonData[0];",
+              "        pm.expect(pelea).to.have.property('id');",
+              "        pm.expect(pelea).to.have.property('Round1');",
+              "        pm.expect(pelea).to.have.property('Round2');",
+              "        pm.expect(pelea).to.have.property('Round3');",
+              "        pm.expect(pelea).to.have.property('Ganador');",
+              "        console.log('Estadísticas finales:', pelea);",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+} 
