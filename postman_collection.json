@@ -1,0 +1,1114 @@
+{
+  "info": {
+    "name": "API Superhéroes - Pruebas de Combate",
+    "description": "Colección de pruebas para simular combates entre round1Jugador1 y round1Jugador2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api-superheroes-2.onrender.com/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "testuser",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "testpass123",
+      "type": "string"
+    },
+    {
+      "key": "enfrentamientoId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Autenticación",
+      "item": [
+        {
+          "name": "Registrar Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Usuario registrado\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response has user data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user).to.have.property('username');",
+                  "    pm.expect(jsonData.user.username).to.eql(pm.environment.get('username'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.expect(jsonData.token).to.be.a('string');",
+                  "});",
+                  "",
+                  "// Guardar el token para usar en otras requests",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('authToken', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Crear Personajes",
+      "item": [
+        {
+          "name": "Crear Héroe 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Superman\",\n  \"alias\": \"Superman\",\n  \"city\": \"Metropolis\",\n  \"team\": \"Justice League\",\n  \"golpeBasico1\": 12,\n  \"golpeBasico2\": 14,\n  \"golpeBasico3\": 10,\n  \"danoCrit\": 25,\n  \"probCrit\": 15,\n  \"nombreHabilidad\": \"Rayo de Calor\",\n  \"danoHabilidad\": 35,\n  \"poder\": 8,\n  \"defensa\": 7,\n  \"vida\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/heroes",
+              "host": ["{{baseUrl}}"],
+              "path": ["heroes"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Héroe creado correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.alias).to.eql(\"Superman\");",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Héroe 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Batman\",\n  \"alias\": \"Batman\",\n  \"city\": \"Gotham\",\n  \"team\": \"Justice League\",\n  \"golpeBasico1\": 8,\n  \"golpeBasico2\": 10,\n  \"golpeBasico3\": 12,\n  \"danoCrit\": 30,\n  \"probCrit\": 20,\n  \"nombreHabilidad\": \"Batarang Explosivo\",\n  \"danoHabilidad\": 40,\n  \"poder\": 6,\n  \"defensa\": 9,\n  \"vida\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/heroes",
+              "host": ["{{baseUrl}}"],
+              "path": ["heroes"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Héroe creado correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.alias).to.eql(\"Batman\");",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Villano 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Joker\",\n  \"alias\": \"Joker\",\n  \"city\": \"Gotham\",\n  \"team\": \"Villanos\",\n  \"golpeBasico1\": 9,\n  \"golpeBasico2\": 11,\n  \"golpeBasico3\": 13,\n  \"danoCrit\": 35,\n  \"probCrit\": 25,\n  \"nombreHabilidad\": \"Gas Venenoso\",\n  \"danoHabilidad\": 45,\n  \"poder\": 7,\n  \"defensa\": 5,\n  \"vida\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/villains",
+              "host": ["{{baseUrl}}"],
+              "path": ["villains"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Villano creado correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.alias).to.eql(\"Joker\");",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Villano 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lex Luthor\",\n  \"alias\": \"Lex Luthor\",\n  \"city\": \"Metropolis\",\n  \"team\": \"Villanos\",\n  \"golpeBasico1\": 7,\n  \"golpeBasico2\": 9,\n  \"golpeBasico3\": 11,\n  \"danoCrit\": 40,\n  \"probCrit\": 30,\n  \"nombreHabilidad\": \"Rayo de Kriptonita\",\n  \"danoHabilidad\": 50,\n  \"poder\": 9,\n  \"defensa\": 6,\n  \"vida\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/villains",
+              "host": ["{{baseUrl}}"],
+              "path": ["villains"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Villano creado correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.alias).to.eql(\"Lex Luthor\");",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Crear Equipos",
+      "item": [
+        {
+          "name": "Crear Equipo 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Heroe_O_Villano1\": \"heroe\",\n  \"AliasPersonaje1\": \"Superman\",\n  \"Heroe_O_Villano2\": \"heroe\",\n  \"AliasPersonaje2\": \"Batman\",\n  \"Heroe_O_Villano3\": \"villano\",\n  \"AliasPersonaje3\": \"Joker\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": ["{{baseUrl}}"],
+              "path": ["equipos"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Equipo creado correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData.AliasPersonaje1).to.eql(\"Superman\");",
+                  "    pm.expect(jsonData.AliasPersonaje2).to.eql(\"Batman\");",
+                  "    pm.expect(jsonData.AliasPersonaje3).to.eql(\"Joker\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Equipo 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Heroe_O_Villano1\": \"villano\",\n  \"AliasPersonaje1\": \"Lex Luthor\",\n  \"Heroe_O_Villano2\": \"heroe\",\n  \"AliasPersonaje2\": \"Superman\",\n  \"Heroe_O_Villano3\": \"villano\",\n  \"AliasPersonaje3\": \"Joker\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": ["{{baseUrl}}"],
+              "path": ["equipos"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Equipo creado correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData.AliasPersonaje1).to.eql(\"Lex Luthor\");",
+                  "    pm.expect(jsonData.AliasPersonaje2).to.eql(\"Superman\");",
+                  "    pm.expect(jsonData.AliasPersonaje3).to.eql(\"Joker\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Crear Enfrentamiento",
+      "item": [
+        {
+          "name": "Crear Enfrentamiento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ID_Equipo1\": 1,\n  \"ID_Equipo2\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enfrentamientos",
+              "host": ["{{baseUrl}}"],
+              "path": ["enfrentamientos"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Enfrentamiento creado correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData.ID_Equipo1).to.eql(1);",
+                  "    pm.expect(jsonData.ID_Equipo2).to.eql(2);",
+                  "    pm.expect(jsonData.VidaPersonaje1_1).to.eql(100);",
+                  "    pm.expect(jsonData.VidaPersonaje2_1).to.eql(100);",
+                  "});",
+                  "",
+                  "// Guardar el ID del enfrentamiento",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('enfrentamientoId', jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Simulación de Combate - Round 1",
+      "item": [
+        {
+          "name": "Ver Estados de Vida - Jugador 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/round1/estados-vida",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "estados-vida"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Estados de vida válidos\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('TuPersonaje');",
+                  "    pm.expect(jsonData).to.have.property('Tuvida');",
+                  "    pm.expect(jsonData).to.have.property('TuEnemigo');",
+                  "    pm.expect(jsonData).to.have.property('VidaEnemigo');",
+                  "    pm.expect(jsonData.Tuvida).to.be.a('number');",
+                  "    pm.expect(jsonData.VidaEnemigo).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver Estados de Vida - Jugador 2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/round1jugador2/estados-vida",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1jugador2", "estados-vida"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Estados de vida válidos\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('TuPersonaje');",
+                  "    pm.expect(jsonData).to.have.property('Tuvida');",
+                  "    pm.expect(jsonData).to.have.property('TuEnemigo');",
+                  "    pm.expect(jsonData).to.have.property('VidaEnemigo');",
+                  "    pm.expect(jsonData.Tuvida).to.be.a('number');",
+                  "    pm.expect(jsonData.VidaEnemigo).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 1 - Jugador 1 Golpear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Golpear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Acción registrada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Golpear\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 2 - Jugador 2 Golpear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Golpear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1jugador2/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1jugador2", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Acción registrada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Golpear\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 3 - Jugador 1 Golpear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Golpear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Acción registrada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Golpear\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 4 - Jugador 2 Usar Habilidad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Usar habilidad\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1jugador2/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1jugador2", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Habilidad usada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Usar habilidad\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 5 - Jugador 1 Golpear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Golpear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Acción registrada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Golpear\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 6 - Jugador 2 Golpear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Golpear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1jugador2/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1jugador2", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Acción registrada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Golpear\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 7 - Jugador 1 Usar Habilidad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Usar habilidad\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Habilidad usada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Usar habilidad\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turno 8 - Jugador 2 Golpear",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Golpear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1jugador2/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1jugador2", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Acción registrada correctamente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('mensaje');",
+                  "    pm.expect(jsonData).to.have.property('accion');",
+                  "    pm.expect(jsonData.accion.AccionRound1).to.eql(\"Golpear\");",
+                  "    pm.expect(jsonData.accion.jugador).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Verificar Resultados",
+      "item": [
+        {
+          "name": "Ver Acciones - Jugador 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/round1/acciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "acciones"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Acciones registradas\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Estructura de acciones correcta\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        var accion = jsonData[0];",
+                  "        pm.expect(accion).to.have.property('AccionRound1');",
+                  "        pm.expect(accion).to.have.property('DañoRealizadoRound1');",
+                  "        pm.expect(accion).to.have.property('VidaRestadaEnemigoRound1');",
+                  "        pm.expect(accion).to.have.property('jugador');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver Acciones - Jugador 2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/round1jugador2/acciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1jugador2", "acciones"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Acciones registradas\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Estructura de acciones correcta\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        var accion = jsonData[0];",
+                  "        pm.expect(accion).to.have.property('AccionRound1');",
+                  "        pm.expect(accion).to.have.property('DañoRealizadoRound1');",
+                  "        pm.expect(accion).to.have.property('VidaRestadaEnemigoRound1');",
+                  "        pm.expect(accion).to.have.property('jugador');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estados Finales de Vida",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/round1/estados-vida",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "estados-vida"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Estados finales válidos\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('TuPersonaje');",
+                  "    pm.expect(jsonData).to.have.property('Tuvida');",
+                  "    pm.expect(jsonData).to.have.property('TuEnemigo');",
+                  "    pm.expect(jsonData).to.have.property('VidaEnemigo');",
+                  "    pm.expect(jsonData.Tuvida).to.be.a('number');",
+                  "    pm.expect(jsonData.VidaEnemigo).to.be.a('number');",
+                  "    pm.expect(jsonData.Tuvida).to.be.at.least(0);",
+                  "    pm.expect(jsonData.VidaEnemigo).to.be.at.least(0);",
+                  "});",
+                  "",
+                  "console.log(\"Estados finales:\", jsonData);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Pruebas de Validación",
+      "item": [
+        {
+          "name": "Intentar Acción Fuera de Turno - Jugador 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Golpear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 (fuera de turno)\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensaje de error correcto\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.include('No es tu turno');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Intentar Usar Habilidad Sin 3 Golpes - Jugador 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Usar habilidad\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 (habilidad sin golpes)\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensaje de error correcto\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.include('No se puede utilizar habilidad');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acción Inválida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccionRound1\": \"Defender\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/round1/atacar",
+              "host": ["{{baseUrl}}"],
+              "path": ["round1", "atacar"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 (acción inválida)\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensaje de error correcto\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.include('Accion no valida');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 

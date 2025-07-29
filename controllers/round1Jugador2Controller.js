@@ -154,6 +154,10 @@ router.post('/atacar', async (req, res) => {
     const enf = enfrentamientos[0];
     // Obtener todas las acciones de este equipo (sin filtrar por jugador ni usuario)
     const acciones = await accionRound1Repository.getByEquipoYJugador(enf.ID_Equipo1);
+    
+    // Obtener acciones SOLO del jugador 2 para validación de habilidad
+    const accionesJugador2 = acciones.filter(a => a.jugador === 2);
+    
     // Si el jugador 2 ya perdió, mostrar mensaje YOU LOSE
     if (enf.VidaPersonaje2_1 === 0) {
       return res.status(400).json({ mensaje: 'YOU LOSE', detalle: 'El Round 1 a concluido, Para seguir peleando valla al Round 2' });
@@ -181,17 +185,17 @@ router.post('/atacar', async (req, res) => {
       return res.status(400).json({ error: `No se encontró el personaje enemigo con alias '${alias1}' en superheroes.json ni villains.json` });
     }
     // Lógica de golpes y habilidad (idéntica pero usando personaje2 como atacante y personaje1 como defensor)
-    // Restricción de habilidad: solo cada 3 golpes básicos
+    // Restricción de habilidad: solo cada 3 golpes básicos del jugador 2
     let lastHabilidadIndex = -1;
-    for (let i = acciones.length - 1; i >= 0; i--) {
-      if (acciones[i].AccionRound1 === 'Usar habilidad') {
+    for (let i = accionesJugador2.length - 1; i >= 0; i--) {
+      if (accionesJugador2[i].AccionRound1 === 'Usar habilidad') {
         lastHabilidadIndex = i;
         break;
       }
     }
     let golpesDesdeUltimaHabilidad = 0;
-    for (let i = acciones.length - 1; i > lastHabilidadIndex; i--) {
-      if (acciones[i].AccionRound1 === 'Golpear') {
+    for (let i = accionesJugador2.length - 1; i > lastHabilidadIndex; i--) {
+      if (accionesJugador2[i].AccionRound1 === 'Golpear') {
         golpesDesdeUltimaHabilidad++;
       }
     }
@@ -201,7 +205,7 @@ router.post('/atacar', async (req, res) => {
       }
     }
     // Determinar daño base
-    let golpeIndex = acciones.filter(a => a.AccionRound1 === 'Golpear').length % 3;
+    let golpeIndex = accionesJugador2.filter(a => a.AccionRound1 === 'Golpear').length % 3;
     let danoBase = 0;
     let mensaje = '';
     // Asegurar que todos los valores sean numéricos

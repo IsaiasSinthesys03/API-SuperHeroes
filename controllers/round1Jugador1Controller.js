@@ -155,6 +155,10 @@ router.post('/atacar', async (req, res) => {
     const enf = enfrentamientos[0];
     // Obtener todas las acciones de este equipo (sin filtrar por jugador ni usuario)
     const acciones = await accionRound1Repository.getByEquipoYJugador(enf.ID_Equipo1);
+    
+    // Obtener acciones SOLO del jugador 1 para validación de habilidad
+    const accionesJugador1 = acciones.filter(a => a.jugador === 1);
+    
     // Si el jugador 1 ya perdió, mostrar mensaje YOU LOSE
     if (enf.VidaPersonaje1_1 === 0) {
       return res.status(400).json({ mensaje: 'YOU LOSE', detalle: 'El Round 1 a concluido, Para seguir peleando valla al Round 2' });
@@ -177,21 +181,21 @@ router.post('/atacar', async (req, res) => {
     if (!personaje2) {
       return res.status(400).json({ error: `No se encontró el personaje enemigo con alias '${alias2}' en superheroes.json ni villains.json` });
     }
-    let golpeIndex = acciones.filter(a => a.AccionRound1 === 'Golpear').length % 3;
-    let habilidadUsada = acciones.filter(a => a.AccionRound1 === 'Usar habilidad').length;
-    // Restricción de habilidad
-    // Buscar el índice del último uso de habilidad
+    let golpeIndex = accionesJugador1.filter(a => a.AccionRound1 === 'Golpear').length % 3;
+    let habilidadUsada = accionesJugador1.filter(a => a.AccionRound1 === 'Usar habilidad').length;
+    // Restricción de habilidad - SOLO para el jugador 1
+    // Buscar el índice del último uso de habilidad del jugador 1
     let lastHabilidadIndex = -1;
-    for (let i = acciones.length - 1; i >= 0; i--) {
-      if (acciones[i].AccionRound1 === 'Usar habilidad') {
+    for (let i = accionesJugador1.length - 1; i >= 0; i--) {
+      if (accionesJugador1[i].AccionRound1 === 'Usar habilidad') {
         lastHabilidadIndex = i;
         break;
       }
     }
-    // Contar golpes básicos desde el último uso de habilidad
+    // Contar golpes básicos del jugador 1 desde su último uso de habilidad
     let golpesDesdeUltimaHabilidad = 0;
-    for (let i = acciones.length - 1; i > lastHabilidadIndex; i--) {
-      if (acciones[i].AccionRound1 === 'Golpear') {
+    for (let i = accionesJugador1.length - 1; i > lastHabilidadIndex; i--) {
+      if (accionesJugador1[i].AccionRound1 === 'Golpear') {
         golpesDesdeUltimaHabilidad++;
       }
     }
